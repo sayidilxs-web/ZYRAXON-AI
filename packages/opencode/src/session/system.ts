@@ -60,7 +60,8 @@ const layer = Layer.effect(
       environment: Effect.fn("SystemPrompt.environment")(function* (model: Provider.Model) {
         const ctx = yield* InstanceState.context
         const references = yield* Effect.gen(function* () {
-          return (yield* (yield* Reference.Service).list()).filter((reference) => reference.description !== undefined)
+          const refs = yield* (yield* Reference.Service).list()
+          return (refs ?? []).filter((reference) => reference.description !== undefined)
         }).pipe(Effect.provide(locations.get(Location.Ref.make({ directory: AbsolutePath.make(ctx.directory) }))))
         return [
           [
@@ -111,7 +112,8 @@ const layer = Layer.effect(
 
       mcp: Effect.fn("SystemPrompt.mcp")(function* (agent: Agent.Info, permission?: PermissionV1.Ruleset) {
         const ruleset = Permission.merge(agent.permission, permission ?? [])
-        const instructions = (yield* mcp.instructions()).filter(
+        const allInstructions = yield* mcp.instructions()
+        const instructions = (allInstructions ?? []).filter(
           (item) => item.tools.length === 0 || Permission.disabled(item.tools, ruleset).size < item.tools.length,
         )
         if (instructions.length === 0) return
