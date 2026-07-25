@@ -4,3 +4,522 @@
   width: 18px;
   aspect-ratio: 1;
 }
+
+/* ═══════════════════════════════════════════
+   ORBITAL PULSE — কেন্দ্রে বল, চারপাশে রিং ঘুরে
+   ═══════════════════════════════════════════ */
+.spinner-orbital-ring {
+  animation: orbital-rotate 1.2s linear infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.spinner-orbital-core {
+  animation: orbital-core-pulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+.spinner-orbital-dot {
+  animation: orbital-dot-orbit 1.2s linear infinite;
+  transform-origin: 7.5px 7.5px;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+@keyframes orbital-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbital-core-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    r: 1.8;
+    filter: drop-shadow(0 0 0px currentColor);
+  }
+  50% {
+    opacity: 0.8;
+    r: 2.5;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+}
+
+@keyframes orbital-dot-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════
+   FIREFLY — অনেকগুলো আলো এলোমেলো জ্বলে
+   ═══════════════════════════════════════════ */
+.spinner-firefly {
+  animation: firefly-glow 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+@keyframes firefly-glow {
+  0%, 100% {
+    opacity: 0;
+    r: 0.2;
+    transform: translate(0, 0);
+  }
+  20% {
+    opacity: 0.9;
+    r: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+    r: 0.5;
+    transform: translate(var(--ff-dx, 0.3px), var(--ff-dy, -0.2px));
+  }
+  80% {
+    opacity: 0.8;
+    r: 0.6;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NEURAL NETWORK — node glow + line draw
+   ═══════════════════════════════════════════ */
+.spinner-neural-node {
+  animation: neural-node-pulse 1.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+.spinner-neural-line {
+  animation: neural-line-draw 1.4s ease-in-out infinite;
+  stroke-dasharray: 10;
+  stroke-dashoffset: 10;
+}
+
+@keyframes neural-node-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    r: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+    r: 0.8;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+@keyframes neural-line-draw {
+  0% {
+    stroke-dashoffset: 10;
+    opacity: 0;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 0.5;
+  }
+  100% {
+    stroke-dashoffset: -10;
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DNA HELIX — দুটো strand ঘুরতে থাকে
+   ═══════════════════════════════════════════ */
+.spinner-dna-strand {
+  animation: dna-rotate 2s linear infinite;
+  transform-origin: center;
+}
+
+.spinner-dna-bridge {
+  animation: dna-bridge-fade 2s ease-in-out infinite;
+}
+
+@keyframes dna-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes dna-bridge-fade {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.6; filter: drop-shadow(0 0 2px currentColor); }
+}
+
+/* ═══════════════════════════════════════════
+   PARTICLE SWARM — কণাগুলো ঘুরে ঘুরে আসে
+   ═══════════════════════════════════════════ */
+.spinner-particle {
+  animation: particle-swarm 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+@keyframes particle-swarm {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 0.8;
+    transform: translate(var(--p-dx, 1px), var(--p-dy, -1px)) scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translate(var(--p-dx2, -0.5px), var(--p-dy2, 0.5px)) scale(0.7);
+  }
+  75% {
+    opacity: 0.7;
+    transform: translate(var(--p-dx, 1px), var(--p-dy, -1px)) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   LIQUID MORPH — তরল পদার্থের মতো shape বদলায়
+   ═══════════════════════════════════════════ */
+.spinner-liquid {
+  animation: liquid-morph 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+@keyframes liquid-morph {
+  0%, 100% {
+    r: 2;
+    opacity: 0.4;
+    filter: drop-shadow(0 0 0px currentColor);
+  }
+  25% {
+    r: 2.8;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  50% {
+    r: 1.5;
+    opacity: 0.5;
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+  75% {
+    r: 2.5;
+    opacity: 0.6;
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RIPPLE WAVE — কেন্দ্র থেকে ঢেউ ছড়িয়ে
+   ═══════════════════════════════════════════ */
+.spinner-ripple {
+  animation: ripple-expand 1.5s ease-out infinite;
+  transform-origin: center;
+}
+
+@keyframes ripple-expand {
+  0% {
+    r: 1;
+    opacity: 0.6;
+    stroke-width: 0.8;
+  }
+  100% {
+    r: 6;
+    opacity: 0;
+    stroke-width: 0.2;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PULSE RING — classic but sexier
+   ═══════════════════════════════════════════ */
+.spinner-pulse-ring {
+  animation: pulse-ring-spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.spinner-pulse-core {
+  animation: pulse-core-breathe 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+@keyframes pulse-ring-spin {
+  0% { transform: rotate(0deg); stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 20; }
+  100% { transform: rotate(360deg); stroke-dashoffset: 0; }
+}
+
+@keyframes pulse-core-breathe {
+  0%, 100% {
+    opacity: 0.2;
+    r: 1.5;
+  }
+  50% {
+    opacity: 0.7;
+    r: 2.2;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ENERGY WAVE — তরঙ্গ আকারে ঘুরে
+   ═══════════════════════════════════════════ */
+.spinner-wave {
+  animation: energy-wave 1.2s ease-in-out infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+@keyframes energy-wave {
+  0%, 100% {
+    opacity: 0.1;
+    stroke-dasharray: 2 30;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    opacity: 0.6;
+    stroke-dasharray: 8 22;
+    stroke-dashoffset: 15;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   QUANTUM DOT — কোয়ান্টাম ফ্লাকচুয়েশন
+   ═══════════════════════════════════════════ */
+.spinner-quantum {
+  animation: quantum-fluctuate 0.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+@keyframes quantum-fluctuate {
+  0%, 100% {
+    opacity: 0.2;
+    r: 0.4;
+    transform: translate(0, 0);
+  }
+  25% {
+    opacity: 0.9;
+    r: 0.9;
+    transform: translate(0.5px, -0.3px);
+  }
+  50% {
+    opacity: 0.1;
+    r: 0.3;
+    transform: translate(-0.4px, 0.5px);
+  }
+  75% {
+    opacity: 0.8;
+    r: 0.7;
+    transform: translate(0.2px, 0.4px);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   THINKING ANIMATIONS — থিংকিং ইন্ডিকেটর
+   ═══════════════════════════════════════════ */
+.thinking-container {
+  position: relative;
+  overflow: visible;
+}
+
+.thinking-pulse-ring {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  animation: thinking-ring-pulse 1.4s ease-in-out infinite;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+/* Ripple — ঢেউ ছড়িয়ে যায় */
+.thinking-ripple-1,
+.thinking-ripple-2,
+.thinking-ripple-3 {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 0.5px solid currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.thinking-ripple-1 {
+  animation: thinking-ripple-expand 2s ease-out infinite;
+}
+.thinking-ripple-2 {
+  animation: thinking-ripple-expand 2s ease-out 0.5s infinite;
+}
+.thinking-ripple-3 {
+  animation: thinking-ripple-expand 2s ease-out 1s infinite;
+}
+
+@keyframes thinking-ripple-expand {
+  0% {
+    width: 4px;
+    height: 4px;
+    opacity: 0.5;
+    border-width: 0.8px;
+  }
+  100% {
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    border-width: 0.2px;
+    left: -12px;
+  }
+}
+
+/* Hologram — সবুজ/নীল আলো, scan line */
+.thinking-hologram {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  animation: thinking-hologram-flicker 1.8s ease-in-out infinite;
+}
+
+.thinking-hologram::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    currentColor 30%,
+    transparent 40%,
+    currentColor 60%,
+    transparent 70%,
+    currentColor 90%,
+    transparent 100%
+  );
+  opacity: 0.3;
+  animation: thinking-hologram-scan 1.8s linear infinite;
+}
+
+@keyframes thinking-hologram-flicker {
+  0%, 100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+  10% { opacity: 0.4; }
+  20% { opacity: 0.1; }
+  30% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+  50% { opacity: 0.3; }
+  70% { opacity: 0.6; transform: translateY(-50%) scale(1.1); }
+  90% { opacity: 0.2; }
+}
+
+@keyframes thinking-hologram-scan {
+  0% { background-position: 0 -10px; }
+  100% { background-position: 0 20px; }
+}
+
+/* ═══════════════════════════════════════════
+   TEXT EFFECTS
+   ═══════════════════════════════════════════ */
+
+/* Glitch — RGB split + flicker */
+.text-glitch {
+  position: relative;
+  animation: text-glitch-main 3s infinite;
+}
+
+.text-glitch::before,
+.text-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.text-glitch::before {
+  color: #ff0040;
+  animation: text-glitch-shift-1 0.3s infinite;
+  clip-path: inset(0 0 65% 0);
+}
+
+.text-glitch::after {
+  color: #00ffff;
+  animation: text-glitch-shift-2 0.3s infinite;
+  clip-path: inset(65% 0 0 0);
+}
+
+@keyframes text-glitch-main {
+  0%, 95%, 100% { transform: none; }
+  96% { transform: translate(-2px, 1px); }
+  97% { transform: translate(2px, -1px); }
+  98% { transform: translate(-1px, -1px); }
+  99% { transform: translate(1px, 1px); }
+}
+
+@keyframes text-glitch-shift-1 {
+  0%, 90%, 100% { transform: none; }
+  92% { transform: translate(-3px, 0); }
+  94% { transform: translate(3px, 0); }
+  96% { transform: translate(-1px, 0); }
+}
+
+@keyframes text-glitch-shift-2 {
+  0%, 90%, 100% { transform: none; }
+  91% { transform: translate(3px, 0); }
+  93% { transform: translate(-3px, 0); }
+  95% { transform: translate(1px, 0); }
+}
+
+/* Typewriter — cursor blink */
+.text-typewriter {
+  overflow: hidden;
+  border-right: 2px solid currentColor;
+  animation: text-typewriter-cursor 0.8s step-end infinite;
+  white-space: nowrap;
+}
+
+@keyframes text-typewriter-cursor {
+  0%, 100% { border-color: currentColor; }
+  50% { border-color: transparent; }
+}
+
+/* ═══════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-orbital-ring,
+  .spinner-orbital-core,
+  .spinner-orbital-dot,
+  .spinner-firefly,
+  .spinner-neural-node,
+  .spinner-neural-line,
+  .spinner-dna-strand,
+  .spinner-dna-bridge,
+  .spinner-particle,
+  .spinner-liquid,
+  .spinner-ripple,
+  .spinner-pulse-ring,
+  .spinner-pulse-core,
+  .spinner-wave,
+  .spinner-quantum,
+  .thinking-pulse-ring,
+  .thinking-ripple-1,
+  .thinking-ripple-2,
+  .thinking-ripple-3,
+  .thinking-hologram,
+  .text-glitch,
+  .text-typewriter {
+    animation: none !important;
+  }
+  .spinner-orbital-ring,
+  .spinner-pulse-ring,
+  .spinner-wave {
+    opacity: 0.6;
+  }
+}
