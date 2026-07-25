@@ -1105,7 +1105,7 @@ const layer = Layer.effect(
           // tool calls. Keep the loop running so tool results can be sent back to
           // the model, but ignore cleanup-marked interrupted orphans.
           const hasToolCalls =
-            lastAssistantMsg?.parts.some(
+            (lastAssistantMsg?.parts ?? []).some(
               (part) => part.type === "tool" && !part.metadata?.providerExecuted && !isOrphanedInterruptedTool(part),
             ) ?? false
 
@@ -1115,7 +1115,7 @@ const layer = Layer.effect(
             !hasToolCalls &&
             lastUser.id < lastAssistant.id
           ) {
-            const orphan = lastAssistantMsg?.parts.find(
+            const orphan = (lastAssistantMsg?.parts ?? []).find(
               (part): part is SessionV1.ToolPart => part.type === "tool" && isOrphanedInterruptedTool(part),
             )
             if (orphan) {
@@ -1221,7 +1221,7 @@ const layer = Layer.effect(
 
           const outcome: "break" | "continue" = yield* Effect.gen(function* () {
             const lastUserMsg = msgs.findLast((m) => m.info.role === "user")
-            const bypassAgentCheck = lastUserMsg?.parts.some((p) => p.type === "agent") ?? false
+            const bypassAgentCheck = (lastUserMsg?.parts ?? []).some((p) => p.type === "agent") ?? false
             const promptOps = yield* ops()
 
             const tools = yield* SessionTools.resolve({
@@ -1272,7 +1272,7 @@ const layer = Layer.effect(
             const lastUserText = msgs
               .filter((m) => m.info.role === "user")
               .at(-1)
-              ?.parts.filter((p): p is SessionV1.TextPart => p.type === "text")
+              ?.parts?.filter((p): p is SessionV1.TextPart => p.type === "text")
               .map((p) => p.text)
               .join("\n") ?? ""
             const autoCtx = yield* Effect.promise(() => autoInjectContext(lastUserText, lastUser.agent))
@@ -1305,7 +1305,7 @@ const layer = Layer.effect(
 
             const finished = handle.message.finish && !["tool-calls", "unknown"].includes(handle.message.finish)
             if (finished && !handle.message.error) {
-              const assistantText = handle.message.parts
+              const assistantText = (handle.message.parts ?? [])
                 .filter((p): p is SessionV1.TextPart => p.type === "text")
                 .map((p) => p.text)
                 .join("\n")
