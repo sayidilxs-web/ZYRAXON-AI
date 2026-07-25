@@ -419,7 +419,8 @@ export function SessionTurn(
                 </div>
               </Show>
               <Show when={showThinking()}>
-                <div data-slot="session-turn-thinking">
+                <div data-slot="session-turn-thinking" class="thinking-container">
+                  <span class="thinking-pulse-ring" />
                   <TextShimmer text={i18n.t("ui.sessionTurn.status.thinking")} />
                   <Show when={!showReasoningSummaries()}>
                     <TextReveal

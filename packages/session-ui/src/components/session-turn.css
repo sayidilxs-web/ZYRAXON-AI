@@ -56,11 +56,142 @@
     font-weight: var(--font-weight-medium);
     line-height: 20px;
     min-height: 20px;
+    position: relative;
 
     [data-component="spinner"] {
       width: 16px;
       height: 16px;
     }
+  }
+
+  .thinking-container {
+    position: relative;
+    overflow: visible;
+  }
+
+  .thinking-pulse-ring {
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+    animation: thinking-ring-pulse 1.4s ease-in-out infinite;
+    filter: blur(1px);
+    pointer-events: none;
+  }
+
+  @keyframes thinking-ring-pulse {
+    0%, 100% {
+      opacity: 0;
+      transform: translateY(-50%) scale(0.5);
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    30% {
+      opacity: 0.6;
+      transform: translateY(-50%) scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: translateY(-50%) scale(2.5);
+      box-shadow: 0 0 8px 2px currentColor;
+    }
+    70% {
+      opacity: 0;
+      transform: translateY(-50%) scale(4);
+      box-shadow: 0 0 12px 4px currentColor;
+    }
+  }
+
+  .thinking-ripple-1,
+  .thinking-ripple-2,
+  .thinking-ripple-3 {
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 0.5px solid currentColor;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .thinking-ripple-1 {
+    animation: thinking-ripple-expand 2s ease-out infinite;
+  }
+  .thinking-ripple-2 {
+    animation: thinking-ripple-expand 2s ease-out 0.5s infinite;
+  }
+  .thinking-ripple-3 {
+    animation: thinking-ripple-expand 2s ease-out 1s infinite;
+  }
+
+  @keyframes thinking-ripple-expand {
+    0% {
+      width: 4px;
+      height: 4px;
+      opacity: 0.5;
+      border-width: 0.8px;
+    }
+    100% {
+      width: 20px;
+      height: 20px;
+      opacity: 0;
+      border-width: 0.2px;
+      left: -12px;
+    }
+  }
+
+  .thinking-hologram {
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    animation: thinking-hologram-flicker 1.8s ease-in-out infinite;
+  }
+
+  .thinking-hologram::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      currentColor 30%,
+      transparent 40%,
+      currentColor 60%,
+      transparent 70%,
+      currentColor 90%,
+      transparent 100%
+    );
+    opacity: 0.3;
+    animation: thinking-hologram-scan 1.8s linear infinite;
+  }
+
+  @keyframes thinking-hologram-flicker {
+    0%, 100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+    10% { opacity: 0.4; }
+    20% { opacity: 0.1; }
+    30% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.3; }
+    70% { opacity: 0.6; transform: translateY(-50%) scale(1.1); }
+    90% { opacity: 0.2; }
+  }
+
+  @keyframes thinking-hologram-scan {
+    0% { background-position: 0 -10px; }
+    100% { background-position: 0 20px; }
   }
 
   [data-component="text-reveal"].session-turn-thinking-heading {
