@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron"
-import type { ElectronAPI, WslServersEvent } from "./types"
+import type { ElectronAPI, PreviewState, StreamState, WslServersEvent } from "./types"
 import type { UpdaterState } from "@opencode-ai/app/updater"
 
 const updaterCallbacks = new Set<(state: UpdaterState) => void>()
@@ -124,24 +124,33 @@ const api: ElectronAPI = {
   setForceFocus: (enabled) => ipcRenderer.invoke("set-force-focus", enabled),
   recordFatalRendererError: (error) => ipcRenderer.invoke("record-fatal-renderer-error", error),
   transcribeAudio: (audioBase64, mimeType) => ipcRenderer.invoke("transcribe-audio", audioBase64, mimeType),
-  speechInit: () => ipcRenderer.invoke("speech-init"),
-  speechStart: (lang) => ipcRenderer.invoke("speech-start", lang),
-  speechStop: () => ipcRenderer.invoke("speech-stop"),
-  speechDestroy: () => ipcRenderer.invoke("speech-destroy"),
-  onSpeechResult: (cb) => {
-    const handler = (_: unknown, text: string, isFinal: boolean) => cb(text, isFinal)
-    ipcRenderer.on("speech-result-to-renderer", handler)
-    return () => ipcRenderer.removeListener("speech-result-to-renderer", handler)
+
+  youtubeStreamStart: (config) => ipcRenderer.invoke("youtube-stream-start", config),
+  youtubeStreamStop: () => ipcRenderer.invoke("youtube-stream-stop"),
+  youtubeStreamStatus: () => ipcRenderer.invoke("youtube-stream-status"),
+  youtubeStreamProbeDevices: () => ipcRenderer.invoke("youtube-stream-probe-devices"),
+  onYouTubeStreamStatus: (cb) => {
+    const handler = (_: unknown, state: StreamState) => cb(state)
+    ipcRenderer.on("youtube-stream-status", handler)
+    return () => ipcRenderer.removeListener("youtube-stream-status", handler)
   },
-  onSpeechState: (cb) => {
-    const handler = (_: unknown, listening: boolean) => cb(listening)
-    ipcRenderer.on("speech-state-to-renderer", handler)
-    return () => ipcRenderer.removeListener("speech-state-to-renderer", handler)
+  onYouTubeStreamViewers: (cb) => {
+    const handler = (_: unknown, count: number) => cb(count)
+    ipcRenderer.on("youtube-stream-viewers", handler)
+    return () => ipcRenderer.removeListener("youtube-stream-viewers", handler)
   },
-  onSpeechError: (cb) => {
-    const handler = (_: unknown, error: string) => cb(error)
-    ipcRenderer.on("speech-error-to-renderer", handler)
-    return () => ipcRenderer.removeListener("speech-error-to-renderer", handler)
+  onYouTubeStreamDuration: (cb) => {
+    const handler = (_: unknown, seconds: number) => cb(seconds)
+    ipcRenderer.on("youtube-stream-duration", handler)
+    return () => ipcRenderer.removeListener("youtube-stream-duration", handler)
+  },
+
+  getPreviewState: () => ipcRenderer.invoke("get-preview-state"),
+  setPreviewState: (state) => ipcRenderer.invoke("set-preview-state", state),
+  onSitePreviewUpdate: (cb) => {
+    const handler = (_: unknown, state: PreviewState) => cb(state)
+    ipcRenderer.on("site-preview-update", handler)
+    return () => ipcRenderer.removeListener("site-preview-update", handler)
   },
 }
 

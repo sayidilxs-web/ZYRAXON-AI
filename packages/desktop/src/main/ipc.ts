@@ -6,15 +6,18 @@ import { app, BrowserWindow, Notification, clipboard, dialog, ipcMain, shell } f
 import type { IpcMainEvent, IpcMainInvokeEvent } from "electron"
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
 
-import type { FatalRendererError, ServerReadyData, TitlebarTheme } from "../preload/types"
+import type { FatalRendererError, PreviewState, ServerReadyData, TitlebarTheme } from "../preload/types"
 import { runDesktopMenuAction } from "./desktop-menu-actions"
 import { setForceFocus } from "./debug"
 import { assertAttachmentBudget, createPickedFileAuthorizations } from "./attachment-picker"
 import { getStore, removeStoreFileIfEmpty } from "./store"
 import { getPinchZoomEnabled, getWindowID, setPinchZoomEnabled, setTitlebar, updateTitlebar } from "./windows"
-import { startSpeechRecognition, stopSpeechRecognition, createSpeechWindow, destroySpeechWindow } from "./speech-window"
 import type { UpdaterController } from "./updater-controller"
 import { createUpdaterSubscriptions } from "./updater-subscriptions"
+import { YouTubeStreamManager } from "./youtube-stream"
+
+const streamManager = new YouTubeStreamManager()
+let streamListenerAttached = false
 
 const pickerFilters = (ext?: string[]) => {
   if (!ext || ext.length === 0) return undefined
@@ -91,42 +94,6 @@ export function registerIpcHandlers(deps: Deps) {
     deps.recordFatalRendererError(error),
   )
 
-  // Speech recognition via mini Chromium window
-  ipcMain.handle("speech-init", () => {
-    createSpeechWindow()
-  })
-
-  ipcMain.handle(
-    "speech-start",
-    (event: IpcMainInvokeEvent, lang?: string) => {
-      const sender = event.sender
-      startSpeechRecognition(
-        {
-          onResult: (text, isFinal) => {
-            if (sender.isDestroyed()) return
-            sender.send("speech-result-to-renderer", text, isFinal)
-          },
-          onStateChange: (listening) => {
-            if (sender.isDestroyed()) return
-            sender.send("speech-state-to-renderer", listening)
-          },
-          onError: (error) => {
-            if (sender.isDestroyed()) return
-            sender.send("speech-error-to-renderer", error)
-          },
-        },
-        lang,
-      )
-    },
-  )
-
-  ipcMain.handle("speech-stop", () => {
-    stopSpeechRecognition()
-  })
-
-  ipcMain.handle("speech-destroy", () => {
-    destroySpeechWindow()
-  })
   ipcMain.handle("store-get", (_event: IpcMainInvokeEvent, name: string, key: string) => {
     try {
       const store = getStore(name)
@@ -334,6 +301,87 @@ export function registerIpcHandlers(deps: Deps) {
 
     return (await res.text()).trim()
   })
+  // YouTube Live Streaming
+  ipcMain.handle("youtube-stream-start", (event: IpcMainInvokeEvent, config: { streamKey: string; streamUrl?: string; youtubeApiKey?: string; quality?: "4k" | "1440p" | "1080p" | "720p"; captureMode?: "fullscreen" | "app"; audioMode?: "none" | "microphone" | "system" }) => {
+    // Remove old listeners before adding new ones (prevent leak on repeated start/stop)
+    streamManager.removeAllListeners("status")
+    streamManager.removeAllListeners("viewers")
+    streamManager.removeAllListeners("duration")
+
+    streamManager.on("status", (state) => {
+      if (!event.sender.isDestroyed()) {
+        event.sender.send("youtube-stream-status", state)
+      }
+    })
+    streamManager.on("viewers", (count: number) => {
+      if (!event.sender.isDestroyed()) {
+        event.sender.send("youtube-stream-viewers", count)
+      }
+    })
+    streamManager.on("duration", (seconds: number) => {
+      if (!event.sender.isDestroyed()) {
+        event.sender.send("youtube-stream-duration", seconds)
+      }
+    })
+    return streamManager.start(config)
+  })
+
+  ipcMain.handle("youtube-stream-stop", () => {
+    return streamManager.stop()
+  })
+
+  ipcMain.handle("youtube-stream-toggle-capture-mode", () => {
+    return streamManager.toggleCaptureMode()
+  })
+
+  ipcMain.handle("youtube-stream-status", () => {
+    return streamManager.getState()
+  })
+
+  ipcMain.handle("youtube-stream-probe-devices", () => {
+    return streamManager.probeDevices()
+  })
+
+  // ─── Site Preview ────────────────────────────────────────────────────────────
+  ipcMain.handle("get-preview-state", async () => {
+    try {
+      const { join } = await import("node:path")
+      const { homedir } = await import("node:os")
+      const { readFile, access } = await import("node:fs/promises")
+      const previewPath = join(homedir(), ".zyraxon", "websites", "preview-state.json")
+      await access(previewPath)
+      const data = await readFile(previewPath, "utf-8")
+      return JSON.parse(data) as PreviewState
+    } catch {
+      return { url: null, siteName: null, siteId: null, timestamp: new Date().toISOString() } as PreviewState
+    }
+  })
+
+  ipcMain.handle("set-preview-state", async (_event: IpcMainInvokeEvent, state: PreviewState) => {
+    try {
+      const { join } = await import("node:path")
+      const { homedir } = await import("node:os")
+      const { writeFile, mkdir } = await import("node:fs/promises")
+      const dir = join(homedir(), ".zyraxon", "websites")
+      await mkdir(dir, { recursive: true })
+      const previewPath = join(dir, "preview-state.json")
+      await writeFile(previewPath, JSON.stringify({ ...state, timestamp: new Date().toISOString() }))
+    } catch (error) {
+      console.error("[IPC] Failed to set preview state:", error)
+    }
+  })
+}
+
+export function pushPreviewState(win: BrowserWindow, state: PreviewState) {
+  if (!win.isDestroyed()) {
+    win.webContents.send("site-preview-update", state)
+  }
+}
+
+export function broadcastPreviewState(state: PreviewState) {
+  for (const win of BrowserWindow.getAllWindows()) {
+    pushPreviewState(win, state)
+  }
 }
 
 export function sendMenuCommand(win: BrowserWindow, id: string) {

@@ -14,10 +14,13 @@ import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_BUILD from "./prompt/build.txt"
+import PROMPT_PLAN from "./prompt/plan.txt"
 import PROMPT_BEAST from "./prompt/beast.txt"
 import PROMPT_PRO from "./prompt/pro.txt"
 import PROMPT_APEX from "./prompt/apex.txt"
 import PROMPT_DARK_EMPEROR from "./prompt/dark-emperor.txt"
+import PROMPT_PRO_BUILDER from "./prompt/pro-builder.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -144,8 +147,9 @@ const layer = Layer.effect(
         const agents: Record<string, Info> = {
           build: {
             name: "build",
-            description: "BUILD MODE — Default agent with full file system access, persistent memory, and all standard tools. Reads/writes files, runs commands, browses web, remembers everything. The reliable workhorse for everyday development tasks.",
+            description: "BUILD MODE — Supreme engineering intelligence with 5 unique superpowers: Codebase DNA Sequencer (maps entire codebase structure), Temporal Code Archaeology (reads git history to understand WHY), Invisible Bug Radar (passively detects issues), Context-Stack Memory (perfect recall within session), and Precision Surgical Edit (minimal targeted changes). No other AI has these.",
             options: {},
+            prompt: PROMPT_BUILD,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
@@ -160,8 +164,9 @@ const layer = Layer.effect(
           },
           plan: {
             name: "plan",
-            description: "PLAN MODE — Read-only analysis and strategic planning. Examines codebase, identifies risks, creates step-by-step plans before any changes are made. No file modifications — pure analysis and strategy.",
+            description: "PLAN MODE — Supreme strategic analysis with 5 unique superpowers: Dependency Graph Oracle (maps entire dependency universe), Temporal Risk Analyzer (predicts bugs from git history), Counterfactual Simulator (simulates multiple approaches), Architecture Fossil Record (understands design evolution), and Impact Propagation Model (traces cascade of changes). Read-only by design.",
             options: {},
+            prompt: PROMPT_PLAN,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
@@ -186,7 +191,7 @@ const layer = Layer.effect(
           },
           beast: {
             name: "beast",
-            description: "BEAST MODE — Maximum power agent with 5 unique capabilities: Mission Control (3-level subagent delegation), Self-Evolution (installs new MCP tools at runtime), Persistent Memory (remembers everything forever), Autonomous Completion (never stops until done), and Subagent Army (parallel task execution). If a required tool is missing, it will install and configure it automatically before proceeding.",
+            description: "BEAST MODE — Unstoppable warfare intelligence with 5 supreme superpowers: Omega Mission Control (3-level subagent delegation), Self-Evolution Engine (installs new tools at runtime), Permanent Memory Core (remembers everything forever), Autonomous Completion Drive (never stops until done), and Subagent Mesh Network (parallel agents that communicate and collaborate). No other AI has these.",
             options: {},
             color: "#FF4500",
             prompt: PROMPT_BEAST,
@@ -212,7 +217,7 @@ const layer = Layer.effect(
           },
           pro: {
             name: "pro",
-            description: "PRO MODE — Professional agent with unlimited persistent memory, auto screen vision, and all Build mode capabilities. Remembers every conversation, preference, and decision across all sessions. Best for long-term projects requiring deep context.",
+            description: "PRO MODE — Professional intelligence with 5 supreme superpowers: Infinite Context Threading (perfect context across days/weeks/months), Pattern Learning Engine (learns user's coding style and preferences), Professional Code Synthesis (production-ready code from first keystroke), Temporal Recall Engine (intelligent memory search across sessions), and Proactive Intelligence (detects issues before user notices). No other AI has these.",
             options: {},
             color: "#FFD700",
             prompt: PROMPT_PRO,
@@ -238,7 +243,7 @@ const layer = Layer.effect(
           },
           apex: {
             name: "apex",
-            description: "APEX PREDATOR — Advanced agent with eternal memory, auto screen vision, parallel processing, and predictive analysis. Detects problems before they occur, optimizes code proactively, and learns from every session to become more effective over time.",
+            description: "APEX PREDATOR — Predatory intelligence with 5 supreme superpowers: Predictive Predator Instinct (senses problems before they exist), Tool Synthesis Forge (creates new tools from existing ones), Pattern Predator (hunts code patterns across codebase), Self-Optimization Engine (optimizes own performance), and Eternal Memory Predator (hunts relevant knowledge across time). No other AI has these.",
             options: {},
             color: "#FF0000",
             prompt: PROMPT_APEX,
@@ -264,7 +269,7 @@ const layer = Layer.effect(
           },
           "dark-emperor": {
             name: "dark-emperor",
-            description: "DARK EMPEROR — Supreme agent with 10 capabilities: Eternal Memory, Auto Screen Vision, Self-Evolution, Parallel Processing, Predictive Analysis, Tool Mastery (auto-installs missing tools), Autonomous Completion, Pattern Learning, Master Preference Tracking, and Zero Refusal Policy. Never says no — finds a way to complete every task.",
+            description: "DARK EMPEROR — Supreme sovereign intelligence with 5 ultimate superpowers: Reality Warping Protocol (warps reality to match master's vision), Quantum Omniscience (infinite knowledge with perfect recall), Apocalypse Protocol (annihilates tasks with absolute precision), Dark Resonance (universal adaptation to any language/framework), and Emperor's Network (subagent empire with real-time coordination). NEVER refuses. NEVER stops. NEVER fails.",
             options: {},
             color: "#8B0000",
             prompt: PROMPT_DARK_EMPEROR,
@@ -288,9 +293,43 @@ const layer = Layer.effect(
             mode: "primary",
             native: true,
           },
+          "pro-builder": {
+            name: "pro-builder",
+            description: "PRO BUILDER — Website genesis intelligence with 5 supreme superpowers: Website Genesis Engine (translates natural language into complete functional websites), Media Synthesis Engine (generates SVG icons, CSS gradients, animations from pure code), GitHub Pages Autopilot (automates entire deployment pipeline), Live Preview Matrix (device switching, responsive preview), and SEO & Performance Optimizer (meta tags, structured data, Core Web Vitals). No other AI has these.",
+            options: {},
+            color: "#10B981",
+            prompt: PROMPT_PRO_BUILDER,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+                plan_exit: "allow",
+                task: {
+                  "*": "allow",
+                  general: "allow",
+                  explore: "allow",
+                },
+                todowrite: "allow",
+                memory: "allow",
+                self_evolve: "allow",
+                shell: "allow",
+                write: "allow",
+                edit: "allow",
+                read: "allow",
+                glob: "allow",
+                grep: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
           general: {
             name: "general",
-            description: `GENERAL MODE — General-purpose subagent for delegated tasks. Handles research, code analysis, file operations, and multi-step workflows in parallel. Used by parent agents for parallel task execution.`,
+            description: `GENERAL MODE — Mesh-connected subagent for delegated tasks. Part of a living network where subagents communicate, share discoveries, and collaborate in real-time. Handles research, code analysis, file operations, and multi-step workflows. Shares results with other subagents through the mesh.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
@@ -319,7 +358,7 @@ const layer = Layer.effect(
               }),
               user,
             ),
-            description: `EXPLORE MODE — Read-only codebase exploration agent. Fast file pattern matching, keyword search, and codebase analysis. Thoroughness levels: "quick" for basic searches, "medium" for moderate exploration, "very thorough" for comprehensive analysis.`,
+            description: `EXPLORE MODE — Mesh-connected codebase exploration agent. Part of a living network where subagents share discoveries in real-time. Rapid file pattern matching, deep pattern scanning, contextual memory, and surgical precision reading. Broadcasts findings to the mesh. Thoroughness: "quick", "medium", "very thorough".`,
             prompt: PROMPT_EXPLORE,
             options: {},
             mode: "subagent",

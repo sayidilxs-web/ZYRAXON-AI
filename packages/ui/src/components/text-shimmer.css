@@ -1,11 +1,11 @@
 [data-component="text-shimmer"] {
-  --text-shimmer-step: 45ms;
-  --text-shimmer-duration: 1200ms;
-  --text-shimmer-swap: 220ms;
+  --text-shimmer-step: 35ms;
+  --text-shimmer-duration: 900ms;
+  --text-shimmer-swap: 180ms;
   --text-shimmer-index: 0;
   --text-shimmer-angle: 90deg;
-  --text-shimmer-spread: 5.2ch;
-  --text-shimmer-size: 360%;
+  --text-shimmer-spread: 6ch;
+  --text-shimmer-size: 400%;
   --text-shimmer-base-color: var(--text-weak);
   --text-shimmer-peak-color: var(--text-strong);
   --text-shimmer-sweep: linear-gradient(

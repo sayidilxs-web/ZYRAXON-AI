@@ -47,17 +47,14 @@ ZYRAXON-AI is an open-source desktop AI agent built on Electron + SolidJS + Bun.
 - **Eternal Memory** - Remembers everything forever. 50,000+ memories with compression.
 - **Self-Evolution** - Installs its own MCP servers and tools at runtime
 - **Auto Screen Vision** - Automatically captures your screen before every response
-- **Voice Input** - Click the mic, speak naturally, it transcribes via Whisper
+- **YouTube Live Streaming** - Stream directly to YouTube (4K/1080p/720p, APP or full screen capture)
+- **Voice Input** - ~~Click the mic, speak naturally, it transcribes via Whisper~~ **(Temporarily disabled)** - We had to disable the chat box microphone due to a critical bug that caused system-level conflicts. We are working on a fix and will bring it back soon.
 - **25+ AI Providers** - OpenAI, Anthropic, Google, Azure, Bedrock, xAI, Mistral, and more
 - **Zero Refusal** - DARK EMPEROR mode never says "I can't"
 
 ---
 
 ## Agent Modes
-
-ZYRAXON has **7 built-in agent modes**. Switch with the Tab key:
-
-### Build Mode (Default)
 The reliable workhorse. Full file system access + persistent memory.
 > Read/Write files, Run commands, Browse web, Generate images, Remember everything
 
@@ -120,13 +117,36 @@ Download the latest release from our **[Releases page](https://github.com/onelpa
 
 ### Quick Build (All-in-One)
 
+The build process has **4 steps** that MUST be run in order:
+
+1. Install all dependencies (root)
+2. Build the core engine (`packages/opencode`)
+3. Build the node server bundle + generate web UI
+4. Build + package the desktop app
+
 **Windows:**
 ```bash
 git clone https://github.com/onelpawarai/ZYRAXON-AI.git
 cd ZYRAXON-AI
+
+# Step 1: Install all dependencies
 bun install
-cd packages/opencode && bun run build && cd ../..
-cd packages/desktop && bun run build && bun run package:win
+
+# Step 2: Build core engine
+cd packages/opencode
+bun run build
+cd ../..
+
+# Step 3: Build node server bundle
+cd packages/opencode
+bun run script/build-node.ts
+cd ../..
+
+# Step 4: Generate web UI import map (scans packages/app/dist)
+# This is a separate step — not part of build-node.ts
+cd packages/desktop
+bun run build
+bun run package:win
 ```
 
 **Linux:**
@@ -135,6 +155,7 @@ git clone https://github.com/onelpawarai/ZYRAXON-AI.git
 cd ZYRAXON-AI
 bun install
 cd packages/opencode && bun run build && cd ../..
+cd packages/opencode && bun run script/build-node.ts && cd ../..
 cd packages/desktop && bun run build && bun run package:linux
 ```
 
@@ -144,8 +165,11 @@ git clone https://github.com/onelpawarai/ZYRAXON-AI.git
 cd ZYRAXON-AI
 bun install
 cd packages/opencode && bun run build && cd ../..
+cd packages/opencode && bun run script/build-node.ts && cd ../..
 cd packages/desktop && bun run build && bun run package:mac
 ```
+
+> **Note:** `build-node.ts` produces `packages/opencode/dist/node/node.js`. The desktop build-wrapper checks for this file and auto-generates `opencode-web-ui.gen.ts` (import map for all non-.map files in `packages/app/dist`). Both must exist for the desktop build to succeed.
 
 ### Development Mode
 
@@ -255,8 +279,9 @@ ZYRAXON-AI/
 
 ## Contributing
 
-We love contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+We love contributions! ZYRAXON-AI is open-source and we welcome everyone.
 
+### How to Contribute
 1. **Fork** the repository
 2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/ZYRAXON-AI.git`
 3. **Install**: `bun install`
@@ -265,6 +290,20 @@ We love contributions! See our [Contributing Guide](CONTRIBUTING.md) for details
 6. **Commit**: `git commit -m "feat: add my feature"`
 7. **Push**: `git push origin feat/my-feature`
 8. **Open PR**
+
+### Ways to Get Involved
+- **Code Contributors** - Fix bugs, add features, improve performance
+- **Bug Reporters** - Found an issue? Open a [GitHub Issue](https://github.com/onelpawarai/ZYRAXON-AI/issues)
+- **Documentation** - Help improve docs, tutorials, guides
+- **Testing** - Try ZYRAXON on different systems and report feedback
+- **Feature Requests** - Suggest new ideas and improvements
+
+### Contact Us
+- **GitHub Issues** - [Open an issue](https://github.com/onelpawarai/ZYRAXON-AI/issues) for bugs or feature requests
+- **YouTube** - [@zyraxon-aix](https://youtube.com/@zyraxon-aix)
+- **Website** - [zyraxonai.lovable.app](https://zyraxonai.lovable.app/)
+
+> Whether you want to contribute code, report bugs, suggest features, or just learn from the project - you are welcome. Contact us and we will work together!
 
 ---
 
@@ -278,7 +317,8 @@ We love contributions! See our [Contributing Guide](CONTRIBUTING.md) for details
 - [x] Eternal Memory (50K+ memories with compression)
 - [x] Self-Evolution
 - [x] Self-Healing (auto-install missing tools)
-- [x] Voice Input (Whisper)
+- [x] Voice Input (Whisper) - **Temporarily disabled due to critical system bug**
+- [x] YouTube Live Streaming
 - [x] Auto-update system
 - [x] BSL 1.1 License
 - [ ] Mobile companion app

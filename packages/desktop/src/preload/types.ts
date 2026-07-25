@@ -41,6 +41,36 @@ export type FatalRendererError = {
   os?: string
 }
 
+export type StreamStatus = "idle" | "starting" | "streaming" | "stopping" | "error"
+
+export type StreamState = {
+  status: StreamStatus
+  error?: string
+  viewerCount: number
+  streamDuration: number
+  rtmpUrl: string
+  resolution: string
+  captureMode: "fullscreen" | "app"
+  audioMode: "none" | "microphone" | "system"
+  systemAudioAvailable: boolean
+}
+
+export type StreamConfig = {
+  streamKey: string
+  streamUrl?: string
+  youtubeApiKey?: string
+  quality?: "4k" | "1440p" | "1080p" | "720p"
+  captureMode?: "fullscreen" | "app"
+  audioMode?: "none" | "microphone" | "system"
+}
+
+export type PreviewState = {
+  url: string | null
+  siteName: string | null
+  siteId: string | null
+  timestamp: string
+}
+
 export type ElectronAPI = {
   killSidecar: () => Promise<void>
   installCli: () => Promise<string>
@@ -107,11 +137,16 @@ export type ElectronAPI = {
   setForceFocus: (enabled: boolean) => Promise<void>
   recordFatalRendererError: (error: FatalRendererError) => Promise<void>
   transcribeAudio: (audioBase64: string, mimeType: string) => Promise<string>
-  speechInit: () => Promise<void>
-  speechStart: (lang?: string) => Promise<void>
-  speechStop: () => Promise<void>
-  speechDestroy: () => Promise<void>
-  onSpeechResult: (cb: (text: string, isFinal: boolean) => void) => () => void
-  onSpeechState: (cb: (listening: boolean) => void) => () => void
-  onSpeechError: (cb: (error: string) => void) => () => void
+
+  youtubeStreamStart: (config: StreamConfig) => Promise<StreamState>
+  youtubeStreamStop: () => Promise<StreamState>
+  youtubeStreamStatus: () => Promise<StreamState>
+  youtubeStreamProbeDevices: () => Promise<{ systemAudioAvailable: boolean; devices: string[] }>
+  onYouTubeStreamStatus: (cb: (state: StreamState) => void) => () => void
+  onYouTubeStreamViewers: (cb: (count: number) => void) => () => void
+  onYouTubeStreamDuration: (cb: (seconds: number) => void) => () => void
+
+  getPreviewState: () => Promise<PreviewState>
+  setPreviewState: (state: PreviewState) => Promise<void>
+  onSitePreviewUpdate: (cb: (state: PreviewState) => void) => () => void
 }
