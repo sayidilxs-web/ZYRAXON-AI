@@ -595,7 +595,7 @@ export function latest(msgs: WithParts[]) {
   const tasks = msgs.flatMap((m) =>
     finished && m.info.id <= finished.id
       ? []
-      : m.parts.filter((p): p is CompactionPart | SubtaskPart => p.type === "compaction" || p.type === "subtask"),
+      : (m.parts ?? []).filter((p): p is CompactionPart | SubtaskPart => p.type === "compaction" || p.type === "subtask"),
   )
   return { user, assistant, finished, tasks }
 }
