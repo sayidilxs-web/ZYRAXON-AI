@@ -152,7 +152,7 @@ export const toModelMessagesEffect = Effect.fnUntraced(function* (
     if (model.api.npm === "@ai-sdk/xai") return attachment.mime.startsWith("image/")
     if (model.api.npm === "@ai-sdk/google-vertex/anthropic") return true
     if (model.api.npm === "@ai-sdk/google") {
-      const id = model.api.id.toLowerCase()
+      const id = model.api.id?.toLowerCase() ?? ""
       return id.includes("gemini-3") && !id.includes("gemini-2")
     }
     return false
