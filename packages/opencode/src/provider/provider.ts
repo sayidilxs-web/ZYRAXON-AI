@@ -1351,7 +1351,7 @@ function modelSuggestions(provider: Info | undefined, modelID: ModelV2.ID, enabl
     : []
   const fuzzy = fuzzysort.go(modelID, available, { limit: 3, threshold: -10000 }).map((m) => m.target)
   if (fuzzy.length) return fuzzy
-  const query = modelID
+  const query = (modelID ?? "")
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((part) => part.length > 1)
