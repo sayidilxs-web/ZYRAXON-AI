@@ -91,6 +91,7 @@ import { createReviewPanelV2State } from "@/pages/session/v2/review-panel-v2-sta
 import { reviewDiffDirectory, reviewDiffNeedsLoad, reviewRootDirectory } from "@/pages/session/v2/review-diff-kinds"
 import { TerminalPanel } from "@/pages/session/terminal-panel"
 import { TerminalPanelV2 } from "@/pages/session/terminal-panel-v2"
+import { AIEyesOverlay } from "@/components/ai-eyes-overlay"
 import { useComposerCommands } from "@/pages/session/use-composer-commands"
 import { useSessionCommands } from "@/pages/session/use-session-commands"
 import { useSessionHashScroll } from "@/pages/session/use-session-hash-scroll"
@@ -2286,6 +2287,7 @@ export default function Page() {
 
   return (
     <SessionRouteFrame>
+      <AIEyesOverlay />
       <SessionHeader />
       <div
         ref={panelRow}
