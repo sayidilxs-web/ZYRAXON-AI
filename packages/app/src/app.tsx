@@ -68,6 +68,8 @@ import { createSessionLineage } from "@/pages/session/session-lineage"
 
 import { SessionPage, SessionRouteErrorBoundary, TargetSessionRouteContent } from "@/pages/session"
 import { NewHome, LegacyHome } from "@/pages/home"
+import StreamPage from "@/pages/stream"
+import { initStreamListeners } from "@/hooks/stream-state"
 
 const NewSession = lazy(() => import("@/pages/new-session"))
 
@@ -281,6 +283,7 @@ function BodyDesignClass() {
 // Server-agnostic providers shared across every route. These live in the shared
 // shell (router root) so they stay mounted regardless of the active server/route.
 function SharedProviders(props: ParentProps) {
+  initStreamListeners()
   return (
     <>
       <BodyDesignClass />
@@ -608,6 +611,7 @@ function Routes(props: { serverScoped?: JSX.Element }) {
         <Route path="/server/:serverKey/session/:id" component={TargetSessionRoute} />
       </Show>
       <Route path="/new-session" component={DraftRoute} />
+      <Route path="/stream" component={StreamPage} />
     </>
   )
 }
