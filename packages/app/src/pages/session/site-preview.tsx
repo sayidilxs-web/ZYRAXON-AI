@@ -117,101 +117,116 @@ export function SitePreview() {
   }
 
   return (
-    <div class="h-full flex flex-col overflow-hidden">
-      {/* Toolbar */}
-      <div class="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border-weaker-base">
-        <div class="flex items-center gap-2 min-w-0">
-          <Show when={hasUrl()}>
-            <div class="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-            <span class="text-12-regular text-text truncate max-w-[180px]">
-              {preview().siteName || "Live Preview"}
-            </span>
-          </Show>
-          <Show when={!hasUrl()}>
-            <span class="text-12-regular text-text-weak">No preview</span>
-          </Show>
+    <div class="h-full flex flex-col overflow-hidden p-3 gap-3">
+      {/* Preview Box — prominent visible container */}
+      <div class="flex-1 min-h-0 flex flex-col overflow-hidden rounded-xl border-2 border-border-default-base bg-surface-raised shadow-[0_4px_24px_rgba(0,0,0,0.25)] ring-1 ring-black/5">
+        {/* Toolbar */}
+        <div class="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border-weaker-base">
+          <div class="flex items-center gap-2 min-w-0">
+            <Show when={hasUrl()}>
+              <div class="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+              <span class="text-12-regular text-text truncate max-w-[180px]">
+                {preview().siteName || "Live Preview"}
+              </span>
+            </Show>
+            <Show when={!hasUrl()}>
+              <span class="text-12-regular text-text-weak">No preview</span>
+            </Show>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            {/* Device toggle */}
+            <Show when={hasUrl()}>
+              <TooltipV2 value={`Device: ${DEVICE_LABELS[device()]}`} placement="bottom">
+                <IconButtonV2
+                  icon={
+                    <Switch>
+                      <Match when={device() === "desktop"}>
+                        <Icon name="monitor" size="small" />
+                      </Match>
+                      <Match when={device() === "tablet"}>
+                        <Icon name="tablet" size="small" />
+                      </Match>
+                      <Match when={device() === "mobile"}>
+                        <Icon name="smartphone" size="small" />
+                      </Match>
+                    </Switch>
+                  }
+                  variant="ghost-muted"
+                  size="normal"
+                  onClick={cycleDevice}
+                />
+              </TooltipV2>
+              {/* Refresh */}
+              <TooltipV2 value="Refresh preview" placement="bottom">
+                <IconButtonV2
+                  icon={<Icon name="refresh" size="small" />}
+                  variant="ghost-muted"
+                  size="normal"
+                  onClick={refreshIframe}
+                />
+              </TooltipV2>
+              {/* Open in browser */}
+              <TooltipV2 value="Open in browser" placement="bottom">
+                <IconButtonV2
+                  icon={<Icon name="external-link" size="small" />}
+                  variant="ghost-muted"
+                  size="normal"
+                  onClick={openInBrowser}
+                />
+              </TooltipV2>
+            </Show>
+          </div>
         </div>
-        <div class="flex items-center gap-1 shrink-0">
-          {/* Device toggle */}
-          <Show when={hasUrl()}>
-            <TooltipV2 value={`Device: ${DEVICE_LABELS[device()]}`} placement="bottom">
-              <IconButtonV2
-                icon={
-                  <Switch>
-                    <Match when={device() === "desktop"}>
-                      <Icon name="monitor" size="small" />
-                    </Match>
-                    <Match when={device() === "tablet"}>
-                      <Icon name="tablet" size="small" />
-                    </Match>
-                    <Match when={device() === "mobile"}>
-                      <Icon name="smartphone" size="small" />
-                    </Match>
-                  </Switch>
-                }
-                variant="ghost-muted"
-                size="normal"
-                onClick={cycleDevice}
-              />
-            </TooltipV2>
-            {/* Refresh */}
-            <TooltipV2 value="Refresh preview" placement="bottom">
-              <IconButtonV2
-                icon={<Icon name="refresh" size="small" />}
-                variant="ghost-muted"
-                size="normal"
-                onClick={refreshIframe}
-              />
-            </TooltipV2>
-            {/* Open in browser */}
-            <TooltipV2 value="Open in browser" placement="bottom">
-              <IconButtonV2
-                icon={<Icon name="external-link" size="small" />}
-                variant="ghost-muted"
-                size="normal"
-                onClick={openInBrowser}
-              />
-            </TooltipV2>
-          </Show>
-        </div>
-      </div>
 
-      {/* Iframe Container */}
-      <div class="flex-1 min-h-0 overflow-hidden flex items-start justify-center bg-background-base">
-        <Show
-          when={hasUrl()}
-          fallback={
-            <div class="h-full w-full flex flex-col items-center justify-center gap-4 px-6 text-center">
-              <div class="w-16 h-16 rounded-2xl bg-surface-base flex items-center justify-center">
-                <Icon name="globe" size="large" class="text-text-weak" />
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="text-14-medium text-text">No site published yet</div>
-                <div class="text-12-regular text-text-weak max-w-[240px]">
-                  Publish your website to see a live preview here
+        {/* Iframe Container — inside the box */}
+        <div class="flex-1 min-h-0 overflow-hidden flex items-start justify-center">
+          <Show
+            when={hasUrl()}
+            fallback={
+              <div class="h-full w-full flex flex-col items-center justify-center gap-4 px-6 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-background-base flex items-center justify-center">
+                  <Icon name="globe" size="large" class="text-text-weak" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <div class="text-14-medium text-text">No site published yet</div>
+                  <div class="text-12-regular text-text-weak max-w-[240px]">
+                    Publish your website to see a live preview here
+                  </div>
                 </div>
               </div>
-            </div>
-          }
-        >
-          <div
-            class="h-full overflow-hidden transition-all duration-300"
-            style={{
-              width: DEVICE_WIDTHS[device()],
-              "max-width": "100%",
-              "background": device() !== "desktop" ? "var(--v2-background-bg-base, #0a0a0a)" : "transparent",
-            }}
+            }
           >
-            {/* Device frame for mobile/tablet */}
-            <Show when={device() !== "desktop"}>
-              <div
-                class="h-full mx-auto overflow-hidden"
-                style={{
-                  "max-width": DEVICE_WIDTHS[device()],
-                  "border-left": "1px solid var(--border-weaker-base, #2a2a2a)",
-                  "border-right": "1px solid var(--border-weaker-base, #2a2a2a)",
-                }}
-              >
+            <div
+              class="h-full overflow-hidden transition-all duration-300"
+              style={{
+                width: DEVICE_WIDTHS[device()],
+                "max-width": "100%",
+                "background": device() !== "desktop" ? "var(--v2-background-bg-base, #0a0a0a)" : "transparent",
+              }}
+            >
+              {/* Device frame for mobile/tablet */}
+              <Show when={device() !== "desktop"}>
+                <div
+                  class="h-full mx-auto overflow-hidden"
+                  style={{
+                    "max-width": DEVICE_WIDTHS[device()],
+                    "border-left": "1px solid var(--border-weaker-base, #2a2a2a)",
+                    "border-right": "1px solid var(--border-weaker-base, #2a2a2a)",
+                  }}
+                >
+                  <iframe
+                    ref={iframeRef}
+                    key={iframeKey()}
+                    src={preview().url!}
+                    class="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    title={`Preview: ${preview().siteName || "Site"}`}
+                  />
+                </div>
+              </Show>
+
+              {/* Desktop: full width iframe */}
+              <Show when={device() === "desktop"}>
                 <iframe
                   ref={iframeRef}
                   key={iframeKey()}
@@ -220,27 +235,15 @@ export function SitePreview() {
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                   title={`Preview: ${preview().siteName || "Site"}`}
                 />
-              </div>
-            </Show>
-
-            {/* Desktop: full width iframe */}
-            <Show when={device() === "desktop"}>
-              <iframe
-                ref={iframeRef}
-                key={iframeKey()}
-                src={preview().url!}
-                class="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                title={`Preview: ${preview().siteName || "Site"}`}
-              />
-            </Show>
-          </div>
-        </Show>
+              </Show>
+            </div>
+          </Show>
+        </div>
       </div>
 
-      {/* Status Bar */}
+      {/* Status Bar — outside the box */}
       <Show when={hasUrl()}>
-        <div class="shrink-0 flex items-center justify-between px-3 py-1.5 border-t border-border-weaker-base bg-surface-base">
+        <div class="shrink-0 flex items-center justify-between px-3 py-1.5 rounded-lg border border-border-weaker-base bg-surface-base">
           <div class="text-11-regular text-text-faint truncate max-w-[200px]">
             {preview().url}
           </div>
