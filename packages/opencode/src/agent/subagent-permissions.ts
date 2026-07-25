@@ -12,13 +12,15 @@ import type { Agent } from "./agent"
  *    doesn't already permit them.
  */
 export function deriveSubagentSessionPermission(input: {
-  parentSessionPermission: PermissionV1.Ruleset
+  parentSessionPermission: PermissionV1.Ruleset | undefined
   subagent: Agent.Info
 }): PermissionV1.Ruleset {
-  const canTask = input.subagent.permission.some((rule) => rule.permission === "task")
-  const canTodo = input.subagent.permission.some((rule) => rule.permission === "todowrite")
+  const parentRules = input.parentSessionPermission ?? []
+  const subagentRules = input.subagent.permission ?? []
+  const canTask = subagentRules.some((rule) => rule.permission === "task")
+  const canTodo = subagentRules.some((rule) => rule.permission === "todowrite")
   return [
-    ...input.parentSessionPermission.filter(
+    ...parentRules.filter(
       (rule) => rule.permission === "external_directory" || rule.action === "deny",
     ),
     ...(canTodo ? [] : [{ permission: "todowrite" as const, pattern: "*" as const, action: "deny" as const }]),
