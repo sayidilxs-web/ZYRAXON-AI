@@ -4,19 +4,59 @@
   color: var(--v2-icon-icon-muted, #808080);
 }
 
-.progress-ring-spinner {
+.progress-ring-outer {
   transform-origin: center;
-  animation: progress-ring-rotate 1.2s linear infinite;
+  animation: progress-outer-spin 1s linear infinite;
+  filter: drop-shadow(0 0 1.5px currentColor);
 }
 
-@keyframes progress-ring-rotate {
+.progress-ring-inner {
+  transform-origin: center;
+  animation: progress-inner-spin 1.6s linear infinite reverse;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+.progress-ring-core {
+  animation: progress-core-pulse 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+@keyframes progress-outer-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
+@keyframes progress-inner-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes progress-core-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    r: 1;
+  }
+  50% {
+    opacity: 0.9;
+    r: 1.8;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .progress-ring-spinner {
+  .progress-ring-outer,
+  .progress-ring-inner,
+  .progress-ring-core {
     animation: none;
-    stroke-dasharray: 16 22;
+  }
+  .progress-ring-outer {
+    stroke-dasharray: 12 24;
+    opacity: 0.5;
+  }
+  .progress-ring-inner {
+    stroke-dasharray: 8 15;
+    opacity: 0.3;
+  }
+  .progress-ring-core {
+    opacity: 0.5;
   }
 }
