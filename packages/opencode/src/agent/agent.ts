@@ -21,6 +21,7 @@ import PROMPT_PRO from "./prompt/pro.txt"
 import PROMPT_APEX from "./prompt/apex.txt"
 import PROMPT_DARK_EMPEROR from "./prompt/dark-emperor.txt"
 import PROMPT_PRO_BUILDER from "./prompt/pro-builder.txt"
+import PROMPT_VISION from "./prompt/vision.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -321,6 +322,37 @@ const layer = Layer.effect(
                 grep: "allow",
                 webfetch: "allow",
                 websearch: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          vision: {
+            name: "vision",
+            description: "VISION MODE — AI's Eyes with real-time screen awareness and memory. Continuous 24/7 screen capture, frame analysis, scene change detection, activity tracking, and intelligent memory recall. You SEE what the user sees, REMEMBER every moment, and UNDERSTAND the context. The most powerful visual intelligence system.",
+            options: {},
+            color: "#8B5CF6",
+            prompt: PROMPT_VISION,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+                plan_exit: "allow",
+                task: {
+                  "*": "allow",
+                  general: "allow",
+                  explore: "allow",
+                },
+                todowrite: "allow",
+                memory: "allow",
+                self_evolve: "allow",
+                read: "allow",
+                write: "allow",
+                glob: "allow",
+                grep: "allow",
+                bash: "allow",
               }),
               user,
             ),

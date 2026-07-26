@@ -4,7 +4,7 @@ Mobile companion app for ZYRAXON-AI - The AI agent that actually does things.
 
 ## Features
 
-- 🤖 **7 Agent Modes** - Build, Plan, Beast, PRO, APEX, DARK EMPEROR, General
+- 🤖 **9 Agent Modes** - Build, Plan, Beast, PRO, APEX, DARK EMPEROR, Vision, Pro Builder, General
 - 🔧 **136+ Tools** - File operations, web search, code execution, and more
 - 🧠 **Eternal Memory** - Remembers everything forever
 - 👁️ **Screen Vision** - Analyze your screen in real-time
