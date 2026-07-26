@@ -58,6 +58,18 @@ import { SessionReminders } from "./reminders"
 import { SessionTools } from "./tools"
 import { LLMEvent } from "@opencode-ai/llm"
 
+// Vision Context — lazy import to avoid circular deps
+let VisionContext: any = null
+async function getVisionContext() {
+  if (!VisionContext) {
+    try {
+      const mod = await import("../screen/vision-context")
+      VisionContext = mod.VisionContext
+    } catch {}
+  }
+  return VisionContext
+}
+
 // @ts-ignore
 globalThis.AI_SDK_LOG_WARNINGS = false
 
@@ -1278,6 +1290,43 @@ const layer = Layer.effect(
             const autoCtx = yield* Effect.promise(() => autoInjectContext(lastUserText, lastUser.agent))
             if (autoCtx) system.push(autoCtx)
 
+            // VISION MODE: Inject live screenshot as IMAGE into messages
+            // AI sees the actual screen — not text description
+            const visionCtx = yield* Effect.promise(() => getVisionContext())
+            let finalMessages = [...modelMsgs]
+            if (visionCtx && visionCtx.isRunning()) {
+              const latestImage = visionCtx.getLatestImage()
+              if (latestImage && latestImage.imageBuffer) {
+                // Convert Buffer to base64 data URL for AI SDK
+                const base64 = latestImage.imageBuffer.toString("base64")
+                const dataUrl = `data:${latestImage.mimeType};base64,${base64}`
+
+                // Create a VISION user message with the actual screenshot
+                const visionMessage: ModelMessage = {
+                  role: "user" as const,
+                  content: [
+                    {
+                      type: "text" as const,
+                      text: `[LIVE SCREEN CAPTURE — ${new Date(latestImage.timestamp).toLocaleTimeString()}]\nResolution: ${latestImage.width}x${latestImage.height}\n${latestImage.analysis}\n[/LIVE SCREEN CAPTURE]`,
+                    },
+                    {
+                      type: "image" as const,
+                      image: dataUrl,
+                    },
+                  ],
+                }
+
+                // Insert vision message BEFORE the last user message
+                // This way AI sees the screen first, then processes the user's request
+                const lastUserIndex = finalMessages.length - 1
+                if (lastUserIndex >= 0) {
+                  finalMessages.splice(lastUserIndex, 0, visionMessage)
+                } else {
+                  finalMessages.push(visionMessage)
+                }
+              }
+            }
+
             const format = lastUser.format ?? { type: "text" as const }
             if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
             const result = yield* handle.process({
@@ -1288,7 +1337,7 @@ const layer = Layer.effect(
               parentSessionID: session.parentID,
               system,
               messages: [
-                ...modelMsgs,
+                ...finalMessages,
                 ...(isLastStep ? [{ role: "assistant" as const, content: MAX_STEPS_PROMPT }] : []),
               ],
               tools,
