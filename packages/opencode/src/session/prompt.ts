@@ -58,16 +58,60 @@ import { SessionReminders } from "./reminders"
 import { SessionTools } from "./tools"
 import { LLMEvent } from "@opencode-ai/llm"
 
-// Vision Context — lazy import to avoid circular deps
-let VisionContext: any = null
-async function getVisionContext() {
-  if (!VisionContext) {
+// Vision — direct screenshot capture for image injection
+// Takes a screenshot via PowerShell and returns JPEG buffer
+import { exec } from "child_process"
+import { promisify } from "util"
+import fs from "fs"
+const execAsync = promisify(exec)
+
+async function captureScreenshotDirect(): Promise<{ buffer: Buffer; width: number; height: number } | null> {
+  try {
+    const tmpFile = path.join(os.tmpdir(), `zyraxon_vision_${Date.now()}.jpg`)
+    const psScript = `
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+$screens = [System.Windows.Forms.Screen]::AllScreens
+$totalWidth = 0
+$totalHeight = 0
+foreach ($screen in $screens) {
+  if ($screen.Bounds.Right -gt $totalWidth) { $totalWidth = $screen.Bounds.Right }
+  if ($screen.Bounds.Bottom -gt $totalHeight) { $totalHeight = $screen.Bounds.Bottom }
+}
+$bitmap = New-Object System.Drawing.Bitmap($totalWidth, $totalHeight)
+$graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+$graphics.CopyFromScreen(0, 0, 0, [System.Drawing.Size]::new($totalWidth, $totalHeight))
+$encoder = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq "image/jpeg" }
+$encoderParams = New-Object System.Drawing.Imaging.EncoderParameters(1)
+$encoderParams.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 80)
+$bitmap.Save('${tmpFile.replace(/\\/g, "\\\\")}', $encoder, $encoderParams)
+$graphics.Dispose()
+$bitmap.Dispose()
+Write-Output "$totalWidth|$totalHeight"
+`
+    const tempScript = path.join(os.tmpdir(), `zyraxon_cap_${Date.now()}.ps1`)
+    fs.writeFileSync(tempScript, psScript, "utf-8")
     try {
-      const mod = await import("../screen/vision-context")
-      VisionContext = mod.VisionContext
-    } catch {}
+      const { stdout } = await execAsync(
+        `powershell -ExecutionPolicy Bypass -NoProfile -File "${tempScript}"`,
+        { timeout: 10000, windowsHide: true }
+      )
+      const [width, height] = (stdout.trim() || "1920|1080").split(":").join("|").split("|").map(Number)
+      if (!fs.existsSync(tmpFile)) return null
+      const buffer = fs.readFileSync(tmpFile)
+      try { fs.unlinkSync(tmpFile) } catch {}
+      return { buffer, width: width || 1920, height: height || 1080 }
+    } finally {
+      try { fs.unlinkSync(tempScript) } catch {}
+    }
+  } catch {
+    return null
   }
-  return VisionContext
+}
+
+// Check if current agent is vision mode
+function isVisionAgent(agent: string): boolean {
+  return agent.toLowerCase().includes("vision")
 }
 
 // @ts-ignore
@@ -1290,24 +1334,20 @@ const layer = Layer.effect(
             const autoCtx = yield* Effect.promise(() => autoInjectContext(lastUserText, lastUser.agent))
             if (autoCtx) system.push(autoCtx)
 
-            // VISION MODE: Inject live screenshot as IMAGE into messages
-            // AI sees the actual screen — not text description
-            const visionCtx = yield* Effect.promise(() => getVisionContext())
+            // VISION MODE: Take live screenshot and inject as IMAGE
+            // AI sees the actual screen — not text description, no tool calls needed
             let finalMessages = [...modelMsgs]
-            if (visionCtx && visionCtx.isRunning()) {
-              const latestImage = visionCtx.getLatestImage()
-              if (latestImage && latestImage.imageBuffer) {
-                // Convert Buffer to base64 data URL for AI SDK
-                const base64 = latestImage.imageBuffer.toString("base64")
-                const dataUrl = `data:${latestImage.mimeType};base64,${base64}`
-
-                // Create a VISION user message with the actual screenshot
+            if (isVisionAgent(agent)) {
+              const screenshot = yield* Effect.promise(() => captureScreenshotDirect())
+              if (screenshot) {
+                const base64 = screenshot.buffer.toString("base64")
+                const dataUrl = `data:image/jpeg;base64,${base64}`
                 const visionMessage: ModelMessage = {
                   role: "user" as const,
                   content: [
                     {
                       type: "text" as const,
-                      text: `[LIVE SCREEN CAPTURE — ${new Date(latestImage.timestamp).toLocaleTimeString()}]\nResolution: ${latestImage.width}x${latestImage.height}\n${latestImage.analysis}\n[/LIVE SCREEN CAPTURE]`,
+                      text: `[ZYRAXON VISION - LIVE SCREEN]\nYou are seeing the user's screen RIGHT NOW as this image. Resolution: ${screenshot.width}x${screenshot.height}\nDescribe what you see and respond to the user's request based on the actual screen content. Do NOT use any screenshot/screen capture tool - you already have the live image.\n[/ZYRAXON VISION]`,
                     },
                     {
                       type: "image" as const,
@@ -1315,9 +1355,6 @@ const layer = Layer.effect(
                     },
                   ],
                 }
-
-                // Insert vision message BEFORE the last user message
-                // This way AI sees the screen first, then processes the user's request
                 const lastUserIndex = finalMessages.length - 1
                 if (lastUserIndex >= 0) {
                   finalMessages.splice(lastUserIndex, 0, visionMessage)
