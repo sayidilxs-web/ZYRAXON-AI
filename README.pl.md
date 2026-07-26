@@ -126,4 +126,4 @@ Jeśli pracujesz nad projektem związanym z ZYRAXON i używasz "ZYRAXON" jako cz
 
 ---
 
-**Dołącz do naszej społeczności** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**Dołącz do naszej społeczności** [Discord](https://discord.gg/DN4fZCCDJj)

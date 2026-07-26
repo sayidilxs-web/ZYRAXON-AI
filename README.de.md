@@ -126,4 +126,4 @@ Wenn du an einem Projekt arbeitest, das mit ZYRAXON zusammenhängt und "ZYRAXON"
 
 ---
 
-**Tritt unserer Community bei** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**Tritt unserer Community bei** [Discord](https://discord.gg/DN4fZCCDJj)

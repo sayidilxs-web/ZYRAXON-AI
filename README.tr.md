@@ -126,4 +126,4 @@ ZYRAXON ile ilgili bir proje üzerinde çalışıyorsanız ve projenizin adını
 
 ---
 
-**Topluluğumuza katılın** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**Topluluğumuza katılın** [Discord](https://discord.gg/DN4fZCCDJj)
