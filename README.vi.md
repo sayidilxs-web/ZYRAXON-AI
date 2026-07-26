@@ -126,4 +126,4 @@ Nếu bạn đang làm việc trên một dự án liên quan đến ZYRAXON và
 
 ---
 
-**Tham gia cộng đồng của chúng tôi** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**Tham gia cộng đồng của chúng tôi** [Discord](https://discord.gg/DN4fZCCDJj)

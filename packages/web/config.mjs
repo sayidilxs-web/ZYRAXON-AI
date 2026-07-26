@@ -6,7 +6,7 @@ export default {
   email: "help@anoma.ly",
   socialCard: "https://social-cards.sst.dev",
   github: "https://github.com/onelpawarai/ZYRAXON-AI",
-  discord: "https://zyraxon.ai/discord",
+  discord: "https://discord.gg/DN4fZCCDJj",
   headerLinks: [
     { name: "app.header.home", url: "/" },
     { name: "app.header.docs", url: "/docs/" },

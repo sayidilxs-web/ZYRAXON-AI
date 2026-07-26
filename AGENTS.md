@@ -162,7 +162,7 @@ const table = sqliteTable("session", {
 
 ## ZYRAXON Agent Modes
 
-ZYRAXON has 7 agent modes with different capabilities:
+ZYRAXON has 9 agent modes with different capabilities:
 
 1. **General** — Default mode for everyday tasks, questions, and conversation.
 2. **Build** — Software engineering mode for coding, debugging, refactoring. Has full file system access.
@@ -171,6 +171,8 @@ ZYRAXON has 7 agent modes with different capabilities:
 5. **PRO** — Professional mode with strict code quality, security scanning, and documentation.
 6. **APEX PREDATOR** — Maximum power mode with 136+ tools, self-healing, and autonomous operation.
 7. **DARK EMPEROR** — Ultra mode with all 8 ULTRA tools, code generation, deployment, and debugging.
+8. **VISION** — AI's Eyes with real-time screen streaming, frame memory, scene analysis, and activity tracking.
+9. **PRO BUILDER** — Website genesis intelligence: creates complete websites from natural language, auto-deploys to GitHub Pages.
 
 ## ZYRAXON MCP Tools
 
