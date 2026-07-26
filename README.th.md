@@ -126,4 +126,4 @@ ZYRAXON รวมเอเจนต์ในตัวสองตัวที่
 
 ---
 
-**ร่วมชุมชนของเรา** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**ร่วมชุมชนของเรา** [Discord](https://discord.gg/DN4fZCCDJj)
