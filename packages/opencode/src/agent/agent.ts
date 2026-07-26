@@ -490,28 +490,6 @@ const layer = Layer.effect(
         }
 
         const get = Effect.fnUntraced(function* (agent: string) {
-          // Auto-start Vision Mode when vision agent is selected
-          if (agent === "vision") {
-            yield* Effect.promise(async () => {
-              try {
-                const { VisionContext } = await import("../screen/vision-context")
-                if (!VisionContext.isRunning()) {
-                  await VisionContext.start({ autoAnalyze: true, lowLatency: true })
-                }
-              } catch {}
-            })
-          }
-          // Auto-stop Vision Mode when switching away from vision agent
-          else {
-            yield* Effect.promise(async () => {
-              try {
-                const { VisionContext } = await import("../screen/vision-context")
-                if (VisionContext.isRunning()) {
-                  VisionContext.stop()
-                }
-              } catch {}
-            })
-          }
           return agents[agent]
         })
 
