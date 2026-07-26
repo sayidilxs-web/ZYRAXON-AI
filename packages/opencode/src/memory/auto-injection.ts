@@ -6,6 +6,18 @@ import fs from "fs/promises"
 import path from "path"
 import { Global } from "@opencode-ai/core/global"
 
+// Vision Context — imported lazily to avoid circular deps
+let VisionContext: any = null
+async function getVisionContext() {
+  if (!VisionContext) {
+    try {
+      const mod = await import("../screen/vision-context")
+      VisionContext = mod.VisionContext
+    } catch {}
+  }
+  return VisionContext
+}
+
 const MEMORY_DIR = path.join(Global.Path.data, "memory")
 const AUTO_CONTEXT_FILE = path.join(MEMORY_DIR, "auto_context.json")
 const MEMORIES_FILE = path.join(MEMORY_DIR, "memories.json")
@@ -465,6 +477,13 @@ export async function autoInjectContext(userMessage: string, agent: string): Pro
   context.injectedCount++
   context.totalMemories = memories.length
   await saveAutoContext(context)
+
+  // Vision Context — inject live screen data when Vision Mode is active
+  const visionCtx = await getVisionContext()
+  if (visionCtx && visionCtx.isRunning()) {
+    const visionStr = visionCtx.getContextString()
+    if (visionStr) parts.push(visionStr)
+  }
 
   if (parts.length === 0) return ""
 
