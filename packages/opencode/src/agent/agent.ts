@@ -353,6 +353,7 @@ const layer = Layer.effect(
                 glob: "allow",
                 grep: "allow",
                 bash: "allow",
+                screen_vision: "deny",
               }),
               user,
             ),
