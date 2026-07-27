@@ -331,7 +331,7 @@ const live: Layer.Layer<
           maxOutputTokens: prepared.params.maxOutputTokens,
           abortSignal: input.abort,
           headers: prepared.headers,
-          maxRetries: input.retries ?? 0,
+          maxRetries: input.retries ?? 3,
           messages: prepared.messages,
           model: wrapLanguageModel({
             model: language,
