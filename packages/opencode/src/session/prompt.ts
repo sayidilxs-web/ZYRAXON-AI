@@ -58,60 +58,137 @@ import { SessionReminders } from "./reminders"
 import { SessionTools } from "./tools"
 import { LLMEvent } from "@opencode-ai/llm"
 
-// Vision — direct screenshot capture for image injection
-// Takes a screenshot via PowerShell and returns JPEG buffer
-import { exec } from "child_process"
-import { promisify } from "util"
+// Vision — robust screenshot capture for image injection
+// Uses spawnSync for reliability (execAsync fails in bundled code)
+import { spawnSync } from "child_process"
 import fs from "fs"
-const execAsync = promisify(exec)
 
-async function captureScreenshotDirect(): Promise<{ buffer: Buffer; width: number; height: number } | null> {
-  try {
-    const tmpFile = path.join(os.tmpdir(), `zyraxon_vision_${Date.now()}.jpg`)
-    const psScript = `
+function captureScreenshotSync(): { buffer: Buffer; width: number; height: number } | null {
+  const tmpFile = path.join(os.tmpdir(), `zyraxon_vision_${Date.now()}.jpg`)
+
+  // PowerShell script — saves screen as JPEG, writes dimensions to stdout
+  const psScript = `
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-$screens = [System.Windows.Forms.Screen]::AllScreens
-$totalWidth = 0
-$totalHeight = 0
-foreach ($screen in $screens) {
-  if ($screen.Bounds.Right -gt $totalWidth) { $totalWidth = $screen.Bounds.Right }
-  if ($screen.Bounds.Bottom -gt $totalHeight) { $totalHeight = $screen.Bounds.Bottom }
+try {
+  $screens = [System.Windows.Forms.Screen]::AllScreens
+  $totalWidth = 0
+  $totalHeight = 0
+  foreach ($screen in $screens) {
+    if ($screen.Bounds.Right -gt $totalWidth) { $totalWidth = $screen.Bounds.Right }
+    if ($screen.Bounds.Bottom -gt $totalHeight) { $totalHeight = $screen.Bounds.Bottom }
+  }
+  if ($totalWidth -eq 0) { $totalWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width }
+  if ($totalHeight -eq 0) { $totalHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height }
+  $bitmap = New-Object System.Drawing.Bitmap($totalWidth, $totalHeight)
+  $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+  $graphics.CopyFromScreen(0, 0, 0, [System.Drawing.Size]::new($totalWidth, $totalHeight))
+  $encoder = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq "image/jpeg" }
+  $encoderParams = New-Object System.Drawing.Imaging.EncoderParameters(1)
+  $encoderParams.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 80)
+  $bitmap.Save("${tmpFile.replace(/\\/g, "\\\\")}", $encoder, $encoderParams)
+  $graphics.Dispose()
+  $bitmap.Dispose()
+  Write-Output "${'$'}totalWidth|${'$'}totalHeight"
+} catch {
+  Write-Error $_.Exception.Message
+  exit 1
 }
-$bitmap = New-Object System.Drawing.Bitmap($totalWidth, $totalHeight)
-$graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-$graphics.CopyFromScreen(0, 0, 0, [System.Drawing.Size]::new($totalWidth, $totalHeight))
-$encoder = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq "image/jpeg" }
-$encoderParams = New-Object System.Drawing.Imaging.EncoderParameters(1)
-$encoderParams.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 80)
-$bitmap.Save('${tmpFile.replace(/\\/g, "\\\\")}', $encoder, $encoderParams)
-$graphics.Dispose()
-$bitmap.Dispose()
-Write-Output "$totalWidth|$totalHeight"
-`
-    const tempScript = path.join(os.tmpdir(), `zyraxon_cap_${Date.now()}.ps1`)
-    fs.writeFileSync(tempScript, psScript, "utf-8")
-    try {
-      const { stdout } = await execAsync(
-        `powershell -ExecutionPolicy Bypass -NoProfile -File "${tempScript}"`,
-        { timeout: 10000, windowsHide: true }
-      )
-      const [width, height] = (stdout.trim() || "1920|1080").split(":").join("|").split("|").map(Number)
-      if (!fs.existsSync(tmpFile)) return null
-      const buffer = fs.readFileSync(tmpFile)
-      try { fs.unlinkSync(tmpFile) } catch {}
-      return { buffer, width: width || 1920, height: height || 1080 }
-    } finally {
-      try { fs.unlinkSync(tempScript) } catch {}
+`.trim()
+
+  try {
+    const result = spawnSync("powershell", [
+      "-ExecutionPolicy", "Bypass",
+      "-NoProfile",
+      "-Sta",
+      "-Command", psScript,
+    ], {
+      timeout: 20000,
+      windowsHide: true,
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+    })
+
+    if (result.error) {
+      console.log("[ZYRAXON VISION] spawnSync error:", result.error.message)
+      return null
     }
-  } catch {
+
+    const stdout = result.stdout || ""
+    const stderr = result.stderr || ""
+    if (stderr) console.log("[ZYRAXON VISION] PS stderr:", stderr.substring(0, 200))
+
+    // Parse dimensions from stdout
+    const dims = (stdout.trim() || "1920|1080").split("|").map(Number)
+    const width = dims[0] || 1920
+    const height = dims[1] || 1080
+
+    if (!fs.existsSync(tmpFile)) {
+      console.log("[ZYRAXON VISION] Screenshot file not created. stdout:", stdout.substring(0, 100))
+      return null
+    }
+
+    const stats = fs.statSync(tmpFile)
+    if (stats.size < 1000) {
+      console.log("[ZYRAXON VISION] Screenshot file too small:", stats.size)
+      try { fs.unlinkSync(tmpFile) } catch {}
+      return null
+    }
+
+    const buffer = fs.readFileSync(tmpFile)
+    try { fs.unlinkSync(tmpFile) } catch {}
+    console.log("[ZYRAXON VISION] Screenshot captured:", width, "x", height, "size:", buffer.length)
+    return { buffer, width, height }
+  } catch (e: any) {
+    console.log("[ZYRAXON VISION] captureScreenshotSync failed:", e?.message)
     return null
   }
 }
 
+async function captureScreenshotDirect(): Promise<{ buffer: Buffer; width: number; height: number } | null> {
+  // Method 1: Try VisionContext cached frame first (instant, no PowerShell needed)
+  try {
+    const { VisionContext } = await import("../screen/vision-context")
+    if (VisionContext.isRunning()) {
+      const cached = VisionContext.getLatestImage()
+      if (cached && cached.imageBuffer && cached.imageBuffer.length > 1000) {
+        console.log("[ZYRAXON VISION] Using cached frame from VisionContext:", cached.width, "x", cached.height)
+        return { buffer: cached.imageBuffer, width: cached.width, height: cached.height }
+      }
+    }
+  } catch (e) {
+    console.log("[ZYRAXON VISION] VisionContext not available")
+  }
+
+  // Method 2: Direct PowerShell screenshot via spawnSync (reliable in bundled code)
+  console.log("[ZYRAXON VISION] Attempting PowerShell capture via spawnSync...")
+  const result = captureScreenshotSync()
+  if (result) return result
+
+  // Method 3: Fallback — nircmd
+  try {
+    const tmpFile = path.join(os.tmpdir(), `zyraxon_vision_fb_${Date.now()}.png`)
+    spawnSync("nircmd", ["savescreenshotfull", tmpFile], { timeout: 10000, windowsHide: true })
+    if (fs.existsSync(tmpFile)) {
+      const buffer = fs.readFileSync(tmpFile)
+      try { fs.unlinkSync(tmpFile) } catch {}
+      if (buffer.length > 1000) {
+        console.log("[ZYRAXON VISION] Fallback capture succeeded, size:", buffer.length)
+        return { buffer, width: 1920, height: 1080 }
+      }
+    }
+  } catch {}
+
+  console.log("[ZYRAXON VISION] ALL capture methods failed")
+  return null
+}
+
 // Check if current agent is vision mode
-function isVisionAgent(agent: string): boolean {
-  return agent.toLowerCase().includes("vision")
+function isVisionAgent(agent: any): boolean {
+  if (!agent) return false
+  if (typeof agent === "string") return agent.toLowerCase().includes("vision")
+  if (agent.name && typeof agent.name === "string") return agent.name.toLowerCase().includes("vision")
+  return false
 }
 
 // @ts-ignore
@@ -1335,32 +1412,66 @@ const layer = Layer.effect(
             if (autoCtx) system.push(autoCtx)
 
             // VISION MODE: Take live screenshot and inject as IMAGE
-            // AI sees the actual screen — not text description, no tool calls needed
+            // AI sees the actual screen as a file attachment — not visible in conversation
             let finalMessages = [...modelMsgs]
             if (isVisionAgent(agent)) {
-              const screenshot = yield* Effect.promise(() => captureScreenshotDirect())
-              if (screenshot) {
-                const base64 = screenshot.buffer.toString("base64")
-                const dataUrl = `data:image/jpeg;base64,${base64}`
-                const visionMessage: ModelMessage = {
-                  role: "user" as const,
-                  content: [
-                    {
-                      type: "text" as const,
-                      text: `[ZYRAXON VISION - LIVE SCREEN]\nYou are seeing the user's screen RIGHT NOW as this image. Resolution: ${screenshot.width}x${screenshot.height}\nDescribe what you see and respond to the user's request based on the actual screen content. Do NOT use any screenshot/screen capture tool - you already have the live image.\n[/ZYRAXON VISION]`,
-                    },
-                    {
-                      type: "image" as const,
-                      image: dataUrl,
-                    },
-                  ],
-                }
-                const lastUserIndex = finalMessages.length - 1
-                if (lastUserIndex >= 0) {
-                  finalMessages.splice(lastUserIndex, 0, visionMessage)
+              try {
+                const screenshot = yield* Effect.promise(() => captureScreenshotDirect())
+                if (screenshot && screenshot.buffer && screenshot.buffer.length > 500) {
+                  const base64 = screenshot.buffer.toString("base64")
+                  const isPng = screenshot.buffer[0] === 0x89 && screenshot.buffer[1] === 0x50
+                  const mimeType = isPng ? "image/png" : "image/jpeg"
+                  const dataUrl = `data:${mimeType};base64,${base64}`
+
+                  // Find last user message and attach image to it (invisible in UI)
+                  const lastUserMsgIndex = finalMessages.findLastIndex(
+                    (m: any) => m.role === "user"
+                  )
+                  if (lastUserMsgIndex >= 0) {
+                    const lastMsg = finalMessages[lastUserMsgIndex] as any
+                    if (typeof lastMsg.content === "string") {
+                      // Convert string content to parts array and add image
+                      lastMsg.content = [
+                        { type: "text", text: lastMsg.content },
+                        { type: "file", uri: dataUrl, mime: mimeType, name: "screen_vision.jpg" },
+                      ]
+                    } else if (Array.isArray(lastMsg.content)) {
+                      // Add image file part to existing parts array
+                      lastMsg.content.push({
+                        type: "file",
+                        uri: dataUrl,
+                        mime: mimeType,
+                        name: "screen_vision.jpg",
+                      })
+                    }
+                    yield* Effect.logInfo("vision screenshot attached to user message", {
+                      width: screenshot.width,
+                      height: screenshot.height,
+                      size: screenshot.buffer.length,
+                      mimeType,
+                    })
+                  } else {
+                    // No user message yet — create one
+                    const visionMessage: ModelMessage = {
+                      role: "user" as const,
+                      content: [
+                        { type: "text" as const, text: "Screen vision attached." },
+                        { type: "file" as const, uri: dataUrl, mime: mimeType, name: "screen_vision.jpg" },
+                      ],
+                    }
+                    finalMessages.push(visionMessage)
+                    yield* Effect.logInfo("vision screenshot injected as new message", {
+                      width: screenshot.width,
+                      height: screenshot.height,
+                      size: screenshot.buffer.length,
+                      mimeType,
+                    })
+                  }
                 } else {
-                  finalMessages.push(visionMessage)
+                  yield* Effect.logWarning("vision screenshot capture returned empty/invalid data")
                 }
+              } catch (e) {
+                yield* Effect.logError("vision screenshot injection failed", { error: e })
               }
             }
 
