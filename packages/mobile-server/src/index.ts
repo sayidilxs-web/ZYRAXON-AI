@@ -41,6 +41,29 @@ app.get('/diagnostic2', async (c) => {
   }
 })
 
+app.get('/diagnostic3', async (c) => {
+  try {
+    const provider = (process.env.MOBILE_AI_PROVIDER ?? 'opencode')
+    const baseUrl = process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1'
+    const model = process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free'
+    const sysPrompt = 'You are ZYRAXON AI Mobile Agent — a powerful AI that controls Android devices with REAL automation.\n\n## RESPONSE FORMAT (ALWAYS JSON)\n{\n"text": "What you are doing",\n"actions": [],\n"finish_reason": "complete"\n}\n\nRespond ONLY with valid JSON.'
+    const messages = [
+      { role: 'system', content: sysPrompt },
+      { role: 'user', content: 'say hello in one word' },
+    ]
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, max_tokens: 4096 }),
+    })
+    const status = res.status
+    const text = await res.text()
+    return c.json({ status, body: text.slice(0, 800), ok: res.ok, len: text.length })
+  } catch (err: any) {
+    return c.json({ error: err.message })
+  }
+})
+
 app.post('/api/mobile/agent', async (c) => {
   try {
     const req: AgentRequest = await c.req.json()
