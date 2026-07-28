@@ -102,7 +102,7 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
       body: JSON.stringify({
         model: provider.model,
         messages,
-        max_tokens: 4096,
+        max_tokens: 512,
       }),
     })
 
