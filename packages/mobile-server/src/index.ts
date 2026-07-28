@@ -43,23 +43,34 @@ app.get('/diagnostic2', async (c) => {
 
 app.get('/diagnostic3', async (c) => {
   try {
-    const provider = (process.env.MOBILE_AI_PROVIDER ?? 'opencode')
     const baseUrl = process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1'
     const model = process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free'
-    const sysPrompt = 'You are ZYRAXON AI Mobile Agent — a powerful AI that controls Android devices with REAL automation.\n\n## RESPONSE FORMAT (ALWAYS JSON)\n{\n"text": "What you are doing",\n"actions": [],\n"finish_reason": "complete"\n}\n\nRespond ONLY with valid JSON.'
-    const messages = [
-      { role: 'system', content: sysPrompt },
-      { role: 'user', content: 'say hello in one word' },
-    ]
-    const res = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens: 256 }),
+
+    // Test 1: why does system prompt cause "Not Found"?
+    const tests: any[] = []
+
+    // A: short system prompt
+    const r1 = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
     })
-    const status = res.status
-    let text = ''
-    try { text = await res.text() } catch (e: any) { text = `READ_ERROR: ${e.message}` }
-    return c.json({ status, body: text.slice(0, 800), ok: res.ok, len: text.length })
+    tests.push({ name: 'short-sys', status: r1.status, body: (await r1.text()).slice(0, 100) })
+
+    // B: system prompt with JSON template
+    const r2 = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Respond with JSON: {"text":"answer"}' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
+    })
+    tests.push({ name: 'json-sys', status: r2.status, body: (await r2.text()).slice(0, 100) })
+
+    // C: longer system prompt
+    const r3 = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are ZYRAXON AI Mobile Agent. You control Android devices. Respond with JSON.' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
+    })
+    tests.push({ name: 'zyraxon-sys', status: r3.status, body: (await r3.text()).slice(0, 100) })
+
+    return c.json({ tests })
   } catch (err: any) {
     return c.json({ error: err.message })
   }
