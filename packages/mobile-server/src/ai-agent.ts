@@ -59,25 +59,30 @@ function buildMessages(req: AgentRequest): Array<{ role: string; content: any }>
     messages.push({ role: msg.role, content: msg.content })
   }
 
-  const userContent: any[] = [{ type: 'text', text: req.message }]
+  const hasVision = req.vision_frames && req.vision_frames.length > 0
 
-  if (req.vision_frames && req.vision_frames.length > 0) {
-    for (const frame of req.vision_frames) {
+  if (hasVision) {
+    const userContent: any[] = [{ type: 'text', text: req.message }]
+    for (const frame of req.vision_frames!) {
       userContent.push({
         type: 'image_url',
         image_url: { url: `data:image/png;base64,${frame.base64}`, detail: 'high' },
       })
     }
+    if (req.device_info) {
+      userContent.push({
+        type: 'text',
+        text: `[Device: ${req.device_info.platform}, Screen: ${req.device_info.screen_width}x${req.device_info.screen_height}, Battery: ${req.device_info.battery_level ?? 'unknown'}%]`,
+      })
+    }
+    messages.push({ role: 'user', content: userContent })
+  } else {
+    let text = req.message
+    if (req.device_info) {
+      text += `\n[Device: ${req.device_info.platform}, Screen: ${req.device_info.screen_width}x${req.device_info.screen_height}, Battery: ${req.device_info.battery_level ?? 'unknown'}%]`
+    }
+    messages.push({ role: 'user', content: text })
   }
-
-  if (req.device_info) {
-    userContent.push({
-      type: 'text',
-      text: `[Device: ${req.device_info.platform}, Screen: ${req.device_info.screen_width}x${req.device_info.screen_height}, Battery: ${req.device_info.battery_level ?? 'unknown'}%]`,
-    })
-  }
-
-  messages.push({ role: 'user', content: userContent })
   return messages
 }
 
