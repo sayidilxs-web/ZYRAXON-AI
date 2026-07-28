@@ -54,16 +54,15 @@ app.post('/api/mobile/agent/stream', async (c) => {
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10)
 
-export default {
+console.log(`\n╔══════════════════════════════════════╗`)
+console.log(`║  ZYRAXON Mobile Agent Server        ║`)
+console.log(`║  Port: ${PORT}                        ║`)
+console.log(`║  AI: ${process.env.MOBILE_AI_PROVIDER ?? 'opencode'} / ${process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free'}  ║`)
+console.log(`╚══════════════════════════════════════╝\n`)
+console.log(`Mobile Agent API: http://localhost:${PORT}/api/mobile/agent`)
+console.log(`Health:           http://localhost:${PORT}/health`)
+
+Bun.serve({
   port: PORT,
   fetch: app.fetch,
-  start() {
-    console.log(`\n╔══════════════════════════════════════╗`)
-    console.log(`║  ZYRAXON Mobile Agent Server        ║`)
-    console.log(`║  Port: ${PORT}                        ║`)
-    console.log(`║  AI: ${process.env.MOBILE_AI_PROVIDER ?? 'openrouter'} / ${process.env.MOBILE_AI_MODEL ?? 'qwen3-coder'}  ║`)
-    console.log(`╚══════════════════════════════════════╝\n`)
-    console.log(`Mobile Agent API: http://localhost:${PORT}/api/mobile/agent`)
-    console.log(`Health:           http://localhost:${PORT}/health`)
-  },
-}
+})
