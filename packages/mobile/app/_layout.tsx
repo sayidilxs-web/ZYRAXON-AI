@@ -1,83 +1,90 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet } from 'react-native';
-import { useStore } from '../src/store/useStore';
-import { healthApi } from '../src/services/api';
+import { useEffect } from 'react'
+import { StatusBar } from 'react-native'
+import { Tabs } from 'expo-router'
+import { theme } from '../src/types/theme'
 
-export default function RootLayout() {
-  const isConnected = useStore((state) => state.isConnected);
-  const preferences = useStore((state) => state.preferences);
-
-  useEffect(() => {
-    // Check server connection periodically
-    const checkConnection = async () => {
-      await healthApi.check();
-    };
-    
-    checkConnection();
-    const interval = setInterval(checkConnection, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <StatusBar style={preferences.theme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: '#0a0a12' },
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen 
-          name="chat" 
-          options={{ 
-            headerShown: false,
-            animation: 'slide_from_bottom',
-          }} 
-        />
-        <Stack.Screen 
-          name="mode-select" 
-          options={{ 
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }} 
-        />
-      </Stack>
-
-      {/* Connection Status Banner */}
-      {!isConnected && (
-        <View style={styles.connectionBanner}>
-          <Text style={styles.connectionText}>⚠️ Not connected to ZYRAXON server</Text>
-        </View>
-      )}
-    </View>
-  );
+const TAB_ICONS: Record<string, { active: string; inactive: string }> = {
+  index: { active: '💬', inactive: '💬' },
+  sessions: { active: '📋', inactive: '📋' },
+  tools: { active: '🔧', inactive: '🔧' },
+  memory: { active: '🧠', inactive: '🧠' },
+  settings: { active: '⚙', inactive: '⚙' },
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0a12',
-  },
-  connectionBanner: {
-    position: 'absolute',
-    top: 50,
-    left: 16,
-    right: 16,
-    backgroundColor: '#ff4444',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    zIndex: 1000,
-  },
-  connectionText: {
-    color: '#fff',
-    fontSize: 12,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-});
+export default function RootLayout() {
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor={theme.bg} />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: theme.tabBar,
+            borderTopColor: theme.tabBorder,
+            borderTopWidth: 1,
+            height: 60,
+            paddingBottom: 8,
+            paddingTop: 4,
+          },
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: theme.textMuted,
+          tabBarLabelStyle: {
+            fontSize: 10,
+            fontWeight: '600',
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Chat',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon={TAB_ICONS.index} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="sessions"
+          options={{
+            title: 'Sessions',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon={TAB_ICONS.sessions} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="tools"
+          options={{
+            title: 'Agents',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon={TAB_ICONS.tools} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="memory"
+          options={{
+            title: 'Memory',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon={TAB_ICONS.memory} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon={TAB_ICONS.settings} focused={focused} />
+            ),
+          }}
+        />
+      </Tabs>
+    </>
+  )
+}
+
+function TabIcon({ icon, focused }: { icon: { active: string; inactive: string }; focused: boolean }) {
+  const { Text } = require('react-native')
+  return <Text style={{ fontSize: 22 }}>{focused ? icon.active : icon.inactive}</Text>
+}
