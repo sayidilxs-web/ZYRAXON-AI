@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: zyraxon-mobile-agent
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: "3001"
+      - key: MOBILE_AI_PROVIDER
+        value: openrouter
+      - key: MOBILE_AI_MODEL
+        value: openrouter/qwen/qwen3-coder:free
+      - key: OPENROUTER_API_KEY
+        sync: false
