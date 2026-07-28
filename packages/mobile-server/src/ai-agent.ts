@@ -23,7 +23,7 @@ function getProvider(): ProviderConfig {
   const configs: Record<ProviderName, ProviderConfig> = {
     opencode: {
       apiKey: process.env.OPENCODE_API_KEY ?? '',
-      baseUrl: process.env.OPENCODE_API_URL ?? 'https://api.opencode.ai/v1',
+      baseUrl: process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1',
       model: process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free',
     },
     openai: {
@@ -97,7 +97,6 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
       body: JSON.stringify({
         model: provider.model,
         messages,
-        response_format: { type: 'json_object' },
         max_tokens: 4096,
       }),
     })
@@ -109,10 +108,15 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
     }
 
     const data = await res.json()
-    const content = data.choices?.[0]?.message?.content ?? '{"text":"No response generated","actions":[],"finish_reason":"error"}'
-
-    const clean = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-    const response: AgentResponse = JSON.parse(clean)
+    const msg = data.choices?.[0]?.message ?? {}
+    const raw = msg.content || msg.reasoning_content || msg.reasoning || ''
+    const clean = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+    let response: AgentResponse
+    try {
+      response = JSON.parse(clean)
+    } catch {
+      response = { text: clean || 'No response generated', actions: [], finish_reason: 'complete' }
+    }
 
     if (!response.text) response.text = 'Task processed.'
     if (!response.actions) response.actions = []
