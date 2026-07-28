@@ -54,10 +54,11 @@ app.get('/diagnostic3', async (c) => {
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens: 4096 }),
+      body: JSON.stringify({ model, messages, max_tokens: 256 }),
     })
     const status = res.status
-    const text = await res.text()
+    let text = ''
+    try { text = await res.text() } catch (e: any) { text = `READ_ERROR: ${e.message}` }
     return c.json({ status, body: text.slice(0, 800), ok: res.ok, len: text.length })
   } catch (err: any) {
     return c.json({ error: err.message })
