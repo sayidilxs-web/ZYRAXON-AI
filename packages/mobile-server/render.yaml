@@ -7,8 +7,10 @@ services:
       - key: PORT
         value: "3001"
       - key: MOBILE_AI_PROVIDER
-        value: openrouter
+        value: opencode
       - key: MOBILE_AI_MODEL
-        value: openrouter/qwen/qwen3-coder:free
-      - key: OPENROUTER_API_KEY
+        value: mimo-v2.5-free
+      - key: OPENCODE_API_KEY
         sync: false
+      - key: OPENCODE_API_URL
+        value: https://api.opencode.ai/v1

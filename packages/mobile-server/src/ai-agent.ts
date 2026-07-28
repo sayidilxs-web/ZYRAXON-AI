@@ -1,17 +1,31 @@
 import { MOBILE_AGENT_SYSTEM_PROMPT } from './system-prompt'
 import type { AgentRequest, AgentResponse } from './types'
 
+/**
+ * AI Agent — opencode.ai Free Models Provider
+ *
+ * Uses opencode.ai's free models (big-pickle, mimo-v2.5-free, deepseek-v4-flash-free, etc.)
+ * These are completely FREE with NO rate limits.
+ *
+ * API: https://api.opencode.ai/v1 (OpenAI-compatible)
+ */
+
 interface ProviderConfig {
   apiKey: string
   baseUrl: string
   model: string
 }
 
-type ProviderName = 'openai' | 'anthropic' | 'google' | 'openrouter' | 'opencode'
+type ProviderName = 'opencode' | 'openai' | 'anthropic' | 'google' | 'openrouter'
 
 function getProvider(): ProviderConfig {
-  const provider = (process.env.MOBILE_AI_PROVIDER ?? 'openrouter') as ProviderName
+  const provider = (process.env.MOBILE_AI_PROVIDER ?? 'opencode') as ProviderName
   const configs: Record<ProviderName, ProviderConfig> = {
+    opencode: {
+      apiKey: process.env.OPENCODE_API_KEY ?? '',
+      baseUrl: process.env.OPENCODE_API_URL ?? 'https://api.opencode.ai/v1',
+      model: process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free',
+    },
     openai: {
       apiKey: process.env.OPENAI_API_KEY ?? '',
       baseUrl: 'https://api.openai.com/v1',
@@ -30,15 +44,10 @@ function getProvider(): ProviderConfig {
     openrouter: {
       apiKey: process.env.OPENROUTER_API_KEY ?? '',
       baseUrl: 'https://openrouter.ai/api/v1',
-      model: process.env.MOBILE_AI_MODEL ?? 'openrouter/qwen/qwen3-coder:free',
-    },
-    opencode: {
-      apiKey: 'free',
-      baseUrl: process.env.OPENCODE_API_URL ?? 'http://localhost:8080',
-      model: process.env.MOBILE_AI_MODEL ?? 'big-pickle',
+      model: process.env.MOBILE_AI_MODEL ?? 'qwen/qwen3-coder:free',
     },
   }
-  return configs[provider] ?? configs.openrouter
+  return configs[provider] ?? configs.opencode
 }
 
 function buildMessages(req: AgentRequest): Array<{ role: string; content: any }> {
@@ -64,7 +73,7 @@ function buildMessages(req: AgentRequest): Array<{ role: string; content: any }>
   if (req.device_info) {
     userContent.push({
       type: 'text',
-      text: `\n[Device: ${req.device_info.platform}, Screen: ${req.device_info.screen_width}x${req.device_info.screen_height}, Battery: ${req.device_info.battery_level ?? 'unknown'}%]`,
+      text: `[Device: ${req.device_info.platform}, Screen: ${req.device_info.screen_width}x${req.device_info.screen_height}, Battery: ${req.device_info.battery_level ?? 'unknown'}%]`,
     })
   }
 
@@ -76,13 +85,14 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
   const provider = getProvider()
   const messages = buildMessages(req)
 
+  console.log(`[AI] Provider: ${provider.baseUrl}, Model: ${provider.model}`)
+
   try {
     const res = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: provider.apiKey ? `Bearer ${provider.apiKey}` : '',
-        ...(provider.baseUrl.includes('openrouter') ? { 'HTTP-Referer': 'https://zyraxon.ai' } : {}),
+        ...(provider.apiKey ? { Authorization: `Bearer ${provider.apiKey}` } : {}),
       },
       body: JSON.stringify({
         model: provider.model,
@@ -94,6 +104,7 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
 
     if (!res.ok) {
       const err = await res.text().catch(() => 'Unknown')
+      console.error(`[AI] Error ${res.status}: ${err}`)
       throw new Error(`AI provider error (${res.status}): ${err}`)
     }
 
@@ -107,8 +118,10 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
     if (!response.actions) response.actions = []
     if (!response.finish_reason) response.finish_reason = 'complete'
 
+    console.log(`[AI] Response: ${response.text.slice(0, 100)}..., Actions: ${response.actions.length}`)
     return response
   } catch (err: any) {
+    console.error(`[AI] Failed: ${err.message}`)
     return {
       text: `Error: ${err.message}`,
       actions: [],
