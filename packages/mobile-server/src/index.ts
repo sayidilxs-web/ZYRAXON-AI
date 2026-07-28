@@ -24,6 +24,23 @@ app.get('/diagnostic', async (c) => {
   }
 })
 
+app.get('/diagnostic2', async (c) => {
+  try {
+    const res = await fetch('https://opencode.ai/zen/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 10 }),
+    })
+    const status = res.status
+    const text = await res.text()
+    let parsed = null
+    try { parsed = JSON.parse(text) } catch {}
+    return c.json({ status, body: text.slice(0, 500), ok: res.ok, parsed_ok: parsed !== null })
+  } catch (err: any) {
+    return c.json({ error: err.message })
+  }
+})
+
 app.post('/api/mobile/agent', async (c) => {
   try {
     const req: AgentRequest = await c.req.json()
