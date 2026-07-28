@@ -9,6 +9,21 @@ app.use('/*', cors({ origin: '*', allowHeaders: ['Content-Type'], allowMethods: 
 
 app.get('/health', (c) => c.json({ status: 'ok', service: 'zyraxon-mobile-agent', version: '1.0.0' }))
 
+app.get('/diagnostic', async (c) => {
+  try {
+    const res = await fetch('https://opencode.ai/zen/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'user', content: 'hi' }], max_tokens: 10 }),
+    })
+    const status = res.status
+    const text = await res.text()
+    return c.json({ status, body: text.slice(0, 300), ok: res.ok })
+  } catch (err: any) {
+    return c.json({ error: err.message })
+  }
+})
+
 app.post('/api/mobile/agent', async (c) => {
   try {
     const req: AgentRequest = await c.req.json()
