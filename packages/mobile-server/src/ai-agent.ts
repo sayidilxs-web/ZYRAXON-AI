@@ -106,13 +106,19 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
       }),
     })
 
+    const bodyText = await res.text()
     if (!res.ok) {
-      const err = await res.text().catch(() => 'Unknown')
-      console.error(`[AI] Error ${res.status}: ${err}`)
-      throw new Error(`AI provider error (${res.status}): ${err}`)
+      console.error(`[AI] Error ${res.status}: ${bodyText}`)
+      throw new Error(`AI provider error (${res.status}): ${bodyText}`)
     }
 
-    const data = await res.json()
+    let data: any
+    try {
+      data = JSON.parse(bodyText)
+    } catch (parseErr: any) {
+      console.error(`[AI] JSON parse failed on body: "${bodyText.slice(0, 500)}"`)
+      throw new Error(`Failed to parse JSON: ${parseErr.message}. Body: ${bodyText.slice(0, 200)}`)
+    }
     const msg = data.choices?.[0]?.message ?? {}
     const raw = msg.content || msg.reasoning_content || msg.reasoning || ''
     const clean = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
