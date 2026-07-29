@@ -16,72 +16,7 @@ app.get('/health', (c) => c.json({
   model: process.env.MOBILE_AI_MODEL ?? '(not set)',
 }))
 
-app.get('/diagnostic', async (c) => {
-  try {
-    const res = await fetch('https://opencode.ai/zen/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'user', content: 'hi' }], max_tokens: 10 }),
-    })
-    const status = res.status
-    const text = await res.text()
-    return c.json({ status, body: text.slice(0, 300), ok: res.ok })
-  } catch (err: any) {
-    return c.json({ error: err.message })
-  }
-})
 
-app.get('/diagnostic2', async (c) => {
-  try {
-    const res = await fetch('https://opencode.ai/zen/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 10 }),
-    })
-    const status = res.status
-    const text = await res.text()
-    let parsed = null
-    try { parsed = JSON.parse(text) } catch {}
-    return c.json({ status, body: text.slice(0, 500), ok: res.ok, parsed_ok: parsed !== null })
-  } catch (err: any) {
-    return c.json({ error: err.message })
-  }
-})
-
-app.get('/diagnostic3', async (c) => {
-  try {
-    const tests: any[] = []
-
-    // Test with the FULL mobile agent system prompt
-    const { MOBILE_AGENT_SYSTEM_PROMPT } = await import('./system-prompt')
-    const r1 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: MOBILE_AGENT_SYSTEM_PROMPT }, { role: 'user', content: 'say hello in one word' }], max_tokens: 256 }),
-    })
-    const b1 = await r1.text()
-    tests.push({ name: 'FULL-system-prompt', status: r1.status, body: b1.slice(0, 200), ok: r1.ok, len: b1.length })
-
-    // Test with the same body but as a string literal
-    const r2 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: '{"model":"mimo-v2.5-free","messages":[{"role":"system","content":"You are ZYRAXON AI Mobile Agent. Respond with JSON."},{"role":"user","content":"hi"}],"max_tokens":256}',
-    })
-    const b2 = await r2.text()
-    tests.push({ name: 'string-literal', status: r2.status, body: b2.slice(0, 200), ok: r2.ok })
-
-    // Test: just the system prompt prefix
-    const r3 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: MOBILE_AGENT_SYSTEM_PROMPT.slice(0, 500) }, { role: 'user', content: 'hi' }], max_tokens: 256 }),
-    })
-    const b3 = await r3.text()
-    tests.push({ name: 'sys-first-500', status: r3.status, body: b3.slice(0, 200), ok: r3.ok })
-
-    return c.json({ tests })
-  } catch (err: any) {
-    return c.json({ error: err.message })
-  }
-})
 
 app.post('/api/mobile/agent', async (c) => {
   try {

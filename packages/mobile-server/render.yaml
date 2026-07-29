@@ -14,3 +14,5 @@ services:
         sync: false
       - key: OPENCODE_API_URL
         value: https://opencode.ai/zen/v1
+      - key: OPENCODE_API_KEY
+        value: ""
