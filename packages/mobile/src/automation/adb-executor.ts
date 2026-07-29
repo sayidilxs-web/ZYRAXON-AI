@@ -177,54 +177,134 @@ export const KEYCODE = {
   SWITCH_KEYBOARD: 287,
 } as const
 
-// Common app package names
+// Common app package names - All popular apps
 export const APP_PACKAGES: Record<string, string> = {
+  // Google
   youtube: 'com.google.android.youtube',
   chrome: 'com.android.chrome',
-  capcut: 'com.lemon.lvoverseas',
-  whatsapp: 'com.whatsapp',
   gmail: 'com.google.android.gm',
+  maps: 'com.google.android.apps.maps',
+  photos: 'com.google.android.apps.photos',
+  drive: 'com.google.android.apps.docs',
+  docs: 'com.google.android.apps.docs.editors.docs',
+  sheets: 'com.google.android.apps.docs.editors.sheets',
+  calendar: 'com.google.android.calendar',
+  clock: 'com.google.android.deskclock',
+  camera: 'com.google.android.GoogleCamera',
+  assistant: 'com.google.android.googlequicksearchbox',
+  gemini: 'com.google.android.apps.gemini',
+  playstore: 'com.android.vending',
+  
+  // Social Media
+  whatsapp: 'com.whatsapp',
   instagram: 'com.instagram.android',
   facebook: 'com.facebook.katana',
+  messenger: 'com.facebook.orca',
   twitter: 'com.twitter.android',
-  settings: 'com.android.settings',
-  camera: 'com.google.android.GoogleCamera',
-  photos: 'com.google.android.apps.photos',
-  clock: 'com.google.android.deskclock',
-  calendar: 'com.google.android.calendar',
-  maps: 'com.google.android.apps.maps',
-  playstore: 'com.android.vending',
-  files: 'com.android.documentsui',
-  calculator: 'com.google.android.calculator',
-  telegram: 'org.telegram.messenger',
-  linkedin: 'com.linkedin.android',
+  tiktok: 'com.zhiliaoapp.musically',
+  snapchat: 'com.snapchat.android',
+  pinterest: 'com.pinterest',
   reddit: 'com.reddit.frontpage',
-  spotify: 'com.spotify.music',
+  linkedin: 'com.linkedin.android',
+  
+  // Messaging
+  telegram: 'org.telegram.messenger',
+  viber: 'com.viber.voip',
+  imo: 'com.imo.android.imou',
+  signal: 'org.thoughtcrime.securesms',
+  skype: 'com.skype.raider',
+  
+  // Video/Media
   netflix: 'com.netflix.mediaclient',
   prime: 'com.amazon.avod.thirdpartyclient',
-  discord: 'com.discord',
-  snapchat: 'com.snapchat.android',
-  messenger: 'com.facebook.orca',
-  sheets: 'com.google.android.apps.docs.editors.sheets',
-  docs: 'com.google.android.apps.docs.editors.docs',
-  drive: 'com.google.android.apps.docs',
-  zoom: 'us.zoom.videomeetings',
-  meet: 'com.google.android.apps.meetings',
-  outlook: 'com.microsoft.office.outlook',
-  teams: 'com.microsoft.teams',
-  chatgpt: 'com.openai.chatgpt',
-  gemini: 'com.google.android.apps.gemini',
-  midjourney: 'com.midjourney',
-  canva: 'com.canva.editor',
-  capcut: 'com.lemon.lvoverseas',
-  alight: 'com.alightcreative.motion',
-  pinterest: 'com.pinterest',
-  tiktok: 'com.zhiliaoapp.musically',
-  temu: 'com.einnovation.temu',
+  disney: 'com.disney.disneyplus',
+  hotstar: 'in.startv.hotstar',
+  jio: 'com.jio.media.jiobeats',
+  spotify: 'com.spotify.music',
+  youtube_music: 'com.google.android.apps.youtube.music',
+  
+  // Gaming
+  freefire: 'com.dts.freefireth',
+  pubg: 'com.tencent.ig',
+  cod: 'com.activision.callofduty.warzone',
+  minecraft: 'com.mojang.minecraftpe',
+  
+  // Shopping
   amazon: 'com.amazon.mShop.android.shopping',
   flipkart: 'com.flipkart.android',
-  uber: 'com.ubercab',
-  pathao: 'com.pathao.user',
-  bKash: 'com.bKash.customerapp',
+  daraz: 'com.daraz.android',
+  temu: 'com.einnovation.temu',
+  aliexpress: 'com.alibaba.aliexpresshd',
+  ebay: 'com.ebay.mobile',
+  
+  // Finance/Banking (Bangladesh)
+  bkash: 'com.bKash.customerapp',
   nagad: 'com.nagad.app',
+  rocket: 'com.dbbl.mbs.rcbl',
+  upay: 'com.upay.service',
+  sslcommerz: 'com.sslcommerz.secureintent',
+  
+  // Finance/General
+  paypal: 'com.paypal.android.p2pmobile',
+  venmo: 'com.venmo',
+  cashapp: 'com.squareup.cash',
+  googlepay: 'com.google.android.apps.nbu.paisa.user',
+  samsungpay: 'com.samsung.android.spay',
+  
+  // Transport
+  uber: 'com.ubercab',
+  lyft: 'com.medallia.yx01',
+  pathao: 'com.pathao.user',
+  sslmerchants: 'com.sslwireless.sslmerchant',
+  
+  // Video Editing
+  capcut: 'com.lemon.lvoverseas',
+  inshot: 'com.camerasideas.instashot',
+  kinemaster: 'com.nexstreaming.app.kinemasterfree',
+  vn: 'com.videovolution.app',
+  
+  // Productivity
+  canva: 'com.canva.editor',
+  notion: 'notion.id',
+  trello: 'com.trello',
+  asana: 'com.asana.app',
+  slack: 'com.Slack',
+  zoom: 'us.zoom.videomeetings',
+  meet: 'com.google.android.apps.meetings',
+  teams: 'com.microsoft.teams',
+  outlook: 'com.microsoft.office.outlook',
+  
+  // AI
+  chatgpt: 'com.openai.chatgpt',
+  copilot: 'com.microsoft.copilot',
+  claude: 'com.anthropic.claude',
+  gemini: 'com.google.android.apps.gemini',
+  
+  // News
+  bbc: 'org.bbc.iplayer',
+  cnn: 'com.cnn.mobile.android.phone',
+  aljazeera: 'com.aljazeera.mobile',
+  
+  // Browser
+  firefox: 'org.mozilla.firefox',
+  opera: 'com.opera.browser',
+  edge: 'com.microsoft.emmx',
+  samsungbrowser: 'com.sec.android.app.sbrowser',
+  
+  // File Manager
+  files: 'com.android.documentsui',
+  solid: 'com.estrongs.android.pop',
+  
+  // Utilities
+  settings: 'com.android.settings',
+  calculator: 'com.google.android.calculator',
+  flashlight: 'com.sec.android.app.light',
+  
+  // Misc
+  zoom: 'us.zoom.videomeetings',
+  dropbox: 'com.dropbox.android',
+  onedrive: 'com.microsoft.skydrive',
+  googlephotos: 'com.google.android.apps.photos',
+  wps: 'cn.wps.moffice_eng',
+  gbwhatsapp: 'com.gbwhatsapp',
 }
