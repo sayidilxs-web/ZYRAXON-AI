@@ -45,29 +45,30 @@ app.get('/diagnostic3', async (c) => {
   try {
     const tests: any[] = []
 
-    // Exact duplicate of diagnostic2 request format
+    // Test with the FULL mobile agent system prompt
+    const { MOBILE_AGENT_SYSTEM_PROMPT } = await import('./system-prompt')
     const r1 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 10 }),
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: MOBILE_AGENT_SYSTEM_PROMPT }, { role: 'user', content: 'say hello in one word' }], max_tokens: 256 }),
     })
     const b1 = await r1.text()
-    tests.push({ name: 'exact-diag2', status: r1.status, body: b1.slice(0, 200), ok: r1.ok })
+    tests.push({ name: 'FULL-system-prompt', status: r1.status, body: b1.slice(0, 200), ok: r1.ok, len: b1.length })
 
-    // With max_tokens=512
+    // Test with the same body but as a string literal
     const r2 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 512 }),
+      body: '{"model":"mimo-v2.5-free","messages":[{"role":"system","content":"You are ZYRAXON AI Mobile Agent. Respond with JSON."},{"role":"user","content":"hi"}],"max_tokens":256}',
     })
     const b2 = await r2.text()
-    tests.push({ name: 'diag2-max512', status: r2.status, body: b2.slice(0, 200), ok: r2.ok })
+    tests.push({ name: 'string-literal', status: r2.status, body: b2.slice(0, 200), ok: r2.ok })
 
-    // With system prompt + user message = agent format
+    // Test: just the system prompt prefix
     const r3 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: '{"model":"mimo-v2.5-free","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"say hello in one word"}],"max_tokens":512}',
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: MOBILE_AGENT_SYSTEM_PROMPT.slice(0, 500) }, { role: 'user', content: 'hi' }], max_tokens: 256 }),
     })
     const b3 = await r3.text()
-    tests.push({ name: 'manual-json', status: r3.status, body: b3.slice(0, 200), ok: r3.ok })
+    tests.push({ name: 'sys-first-500', status: r3.status, body: b3.slice(0, 200), ok: r3.ok })
 
     return c.json({ tests })
   } catch (err: any) {
