@@ -43,37 +43,31 @@ app.get('/diagnostic2', async (c) => {
 
 app.get('/diagnostic3', async (c) => {
   try {
-    const baseUrl = process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1'
-    const model = process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free'
     const tests: any[] = []
 
-    // A: no max_tokens (default)
-    const r1 = await fetch(`${baseUrl}/chat/completions`, {
+    // Exact duplicate of diagnostic2 request format
+    const r1 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }] }),
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 10 }),
     })
-    tests.push({ name: 'no-max-tokens', status: r1.status, body: (await r1.text()).slice(0, 100) })
+    const b1 = await r1.text()
+    tests.push({ name: 'exact-diag2', status: r1.status, body: b1.slice(0, 200), ok: r1.ok })
 
-    // B: max_tokens=50
-    const r2 = await fetch(`${baseUrl}/chat/completions`, {
+    // With max_tokens=512
+    const r2 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 50 }),
+      body: JSON.stringify({ model: 'mimo-v2.5-free', messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 512 }),
     })
-    tests.push({ name: 'max50', status: r2.status, body: (await r2.text()).slice(0, 100) })
+    const b2 = await r2.text()
+    tests.push({ name: 'diag2-max512', status: r2.status, body: b2.slice(0, 200), ok: r2.ok })
 
-    // C: max_tokens=100
-    const r3 = await fetch(`${baseUrl}/chat/completions`, {
+    // With system prompt + user message = agent format
+    const r3 = await fetch('https://opencode.ai/zen/v1/chat/completions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 100 }),
+      body: '{"model":"mimo-v2.5-free","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"say hello in one word"}],"max_tokens":512}',
     })
-    tests.push({ name: 'max100', status: r3.status, body: (await r3.text()).slice(0, 100) })
-
-    // D: max_tokens=512
-    const r4 = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 512 }),
-    })
-    tests.push({ name: 'max512', status: r4.status, body: (await r4.text()).slice(0, 100) })
+    const b3 = await r3.text()
+    tests.push({ name: 'manual-json', status: r3.status, body: b3.slice(0, 200), ok: r3.ok })
 
     return c.json({ tests })
   } catch (err: any) {
