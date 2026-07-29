@@ -22,7 +22,7 @@ function getProvider(): ProviderConfig {
   const provider = (process.env.MOBILE_AI_PROVIDER ?? 'opencode') as ProviderName
   const configs: Record<ProviderName, ProviderConfig> = {
     opencode: {
-      apiKey: process.env.OPENCODE_API_KEY ?? '',
+      apiKey: '',
       baseUrl: process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1',
       model: process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free',
     },
