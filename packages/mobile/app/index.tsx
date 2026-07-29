@@ -2,7 +2,9 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { View, FlatList, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert, Image } from 'react-native'
 import { theme } from '../src/types/theme'
 import { chatStore } from '../src/store/chatStore'
-import { streamChat } from '../src/services/api'
+import { streamChat, type AiResponse } from '../src/services/api'
+import { executeAction, ensureInitialized } from '../src/mobile-agent/action-executor'
+import type { DeviceAction } from '../src/mobile-agent/protocol'
 import { voiceService } from '../src/services/voice-service'
 import { Header } from '../src/components/Header'
 import { ChatInput } from '../src/components/ChatInput'
@@ -57,6 +59,14 @@ export default function ChatScreen() {
     setLogLines((prev) => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${line}`])
   }, [])
 
+  const executeActions = useCallback(async (actions: DeviceAction[]) => {
+    for (const action of actions) {
+      addLog(`Executing: ${action.type}${action.target ? ' → ' + action.target : ''}`)
+      const result = await executeAction(action)
+      addLog(`Result: ${result.success ? '✓' : '✗'}${result.error ? ' - ' + result.error : ''}`)
+    }
+  }, [addLog])
+
   const handleSend = useCallback(async (text: string) => {
     if (streaming) return
     chatStore.addMessage(text, 'user', agentMode)
@@ -72,11 +82,16 @@ export default function ChatScreen() {
       history,
       agentMode,
       (token) => setStreamingText((prev) => prev + token),
-      () => {
-        const currentStream = streamingText
-        chatStore.addMessage(currentStream || '(no response)', 'assistant')
+      async (response: AiResponse) => {
+        const fullText = streamingText || response.text
+        chatStore.addMessage(fullText, 'assistant')
         setStreamingText('')
         setStreaming(false)
+
+        if (response.actions && response.actions.length > 0) {
+          await ensureInitialized()
+          executeActions(response.actions)
+        }
       },
       (err) => {
         chatStore.addMessage(`Error: ${err.message}`, 'assistant')
@@ -85,7 +100,7 @@ export default function ChatScreen() {
       },
     )
     abortRef.current = controller
-  }, [agentMode, streaming])
+  }, [agentMode, streaming, executeActions, addLog])
 
   const handleVoiceToggle = useCallback(async () => {
     if (voiceService.getListeningState()) {

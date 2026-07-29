@@ -22,6 +22,12 @@ export function getAgentServerUrl(): string {
   return agentServerUrl
 }
 
+export interface AiResponse {
+  text: string
+  actions: Array<{ type: string; target?: string; text?: string; x?: number; y?: number; duration?: number; description?: string }>
+  finish_reason?: string
+}
+
 export async function healthCheck(): Promise<boolean> {
   try {
     const res = await fetch(`${serverUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(5000) })
@@ -45,7 +51,7 @@ export async function streamChat(
   history: Array<{ role: string; content: string }>,
   agentMode: AgentMode,
   onToken: (token: string) => void,
-  onDone: () => void,
+  onDone: (response: AiResponse) => void,
   onError: (err: Error) => void,
 ): Promise<AbortController> {
   const controller = new AbortController()
@@ -64,9 +70,13 @@ export async function streamChat(
     }
 
     const data = await res.json()
-    const text = data.text || '(no response)'
-    onToken(text)
-    onDone()
+    const response: AiResponse = {
+      text: data.text || '(no response)',
+      actions: data.actions || [],
+      finish_reason: data.finish_reason,
+    }
+    onToken(response.text)
+    onDone(response)
   } catch (err: any) {
     if (err.name !== 'AbortError') {
       onError(err instanceof Error ? err : new Error(String(err)))
