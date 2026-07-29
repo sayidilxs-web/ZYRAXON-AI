@@ -5,8 +5,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "npx expo lint"
   },
@@ -20,17 +20,19 @@
     "expo-file-system": "~18.0.0",
     "expo-linking": "~7.0.0",
     "expo-media-library": "~17.0.0",
+    "expo-modules-autolinking": "~2.0.0",
+    "expo-modules-core": "~2.2.0",
+    "expo-router": "~4.0.0",
+    "expo-screen-capture": "~7.0.0",
     "expo-speech": "~13.0.0",
     "expo-status-bar": "~2.0.0",
-    "expo-screen-capture": "~16.0.0",
     "react": "18.3.1",
     "react-native": "0.76.0",
-    "react-native-safe-area-context": "4.14.0",
-    "react-native-screens": "~4.4.0",
     "react-native-gesture-handler": "~2.20.0",
+    "react-native-markdown-display": "^7.0.0",
     "react-native-reanimated": "~3.16.0",
-    "expo-router": "~4.0.0",
-    "react-native-markdown-display": "^7.0.0"
+    "react-native-safe-area-context": "4.14.0",
+    "react-native-screens": "~4.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
