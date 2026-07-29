@@ -53,14 +53,20 @@ export async function streamChat(
   onToken: (token: string) => void,
   onDone: (response: AiResponse) => void,
   onError: (err: Error) => void,
+  visionFrames?: Array<{ base64: string; timestamp: number; type: string }>,
+  deviceInfo?: { platform: string; screen_width?: number; screen_height?: number; battery_level?: number; current_app?: string },
 ): Promise<AbortController> {
   const controller = new AbortController()
 
   try {
+    const body: Record<string, any> = { message: content, history, mode: agentMode }
+    if (visionFrames && visionFrames.length > 0) body.vision_frames = visionFrames
+    if (deviceInfo) body.device_info = deviceInfo
+
     const res = await fetch(`${agentServerUrl}/api/mobile/agent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: content, history, mode: agentMode }),
+      body: JSON.stringify(body),
       signal: controller.signal,
     })
 
