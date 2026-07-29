@@ -1,79 +1,15 @@
 package com.zyraxon.automation
 
-<<<<<<< HEAD
 import android.accessibilityservice.AccessibilityService
-=======
->>>>>>> origin/mobile-sdk-compatibility-fix
 import android.util.Log
 import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 
 /**
-<<<<<<< HEAD
- * Local HTTP Server for communicating with the React Native app.
- *
- * Runs on port 19091, accessible at http://localhost:19091
- *
- * Endpoints:
- *   GET  /health           → Server status
- *   GET  /ui-tree          → Complete UI tree JSON
- *   GET  /screen-text      → All visible text on screen
- *   GET  /foreground-app   → Current foreground app package/activity
- *   POST /click/text       → Click by text content {"text": "YouTube"}
- *   POST /click/coordinate → Click at coordinates {"x": 500, "y": 800}
- *   POST /swipe            → Swipe gesture
- *   POST /type             → Type text {"text": "hello"}
- *   POST /scroll           → Scroll {"direction": "forward|backward"}
- *   POST /go-back          → Press back button
- *   POST /go-home          → Press home button
-=======
  * Local HTTP Server for ZYRAXON Mobile Automation
  * 
  * Runs on port 19091, accessible at http://localhost:19091
- * 
- * Endpoints:
- *   GET  /health              → Server + service status
- *   GET  /ui-tree             → Complete UI tree JSON
- *   GET  /screen-text        → All visible text on screen
- *   GET  /all-elements        → All clickable/scrollable elements
- *   GET  /foreground-app      → Current foreground app package/activity
- *   GET  /device-info          → Device information
- *   GET  /installed-apps       → List of installed apps
- *   GET  /battery             → Battery level
- *   GET  /screen-on           → Is screen on?
- *   GET  /wifi-enabled        → Is WiFi enabled?
- *   GET  /bluetooth-enabled    → Is Bluetooth enabled?
- *   GET  /brightness          → Screen brightness level
- *   
- *   POST /click/text          → Click by text content {"text": "Button", "partial": true}
- *   POST /click/id            → Click by resource ID {"id": "com.example:id/button"}
- *   POST /click/description   → Click by content description {"description": "Menu"}
- *   POST /click/coordinate    → Click at coordinates {"x": 500, "y": 800}
- *   POST /double-click        → Double click at coordinates {"x": 500, "y": 800}
- *   POST /long-press          → Long press at coordinates {"x": 500, "y": 800}
- *   POST /swipe               → Swipe gesture {"x1": 100, "y1": 500, "x2": 800, "y2": 500, "duration": 300}
- *   POST /scroll              → Scroll {"direction": "forward|backward|down|up"}
- *   POST /type                → Type text {"text": "hello"}
- *   POST /clear-text          → Clear text field
- *   POST /press-enter         → Press Enter key
- *   POST /press-delete        → Press Delete key
- *   POST /check               → Check checkbox
- *   POST /uncheck             → Uncheck checkbox
- *   POST /toggle              → Toggle checkbox/switch
- *   POST /expand              → Expand dropdown
- *   POST /collapse            → Collapse dropdown
- *   POST /open-app            → Open app by package name {"package": "com.youtube"}
- *   POST /vibrate             → Vibrate {"pattern": [0, 100, 100, 100]}
- *   
- *   POST /go-back             → Press back button
- *   POST /go-home             → Press home button
- *   POST /go-recents         → Open recent apps
- *   POST /notification        → Open notification shade
- *   POST /quick-settings      → Open quick settings
- *   POST /screenshot          → Take screenshot
->>>>>>> origin/mobile-sdk-compatibility-fix
  */
-
 class HttpServer(
     private val port: Int,
     private val service: ZyraxonAccessibilityService
@@ -102,56 +38,14 @@ class HttpServer(
         )
 
         if (session.method == Method.OPTIONS) {
-            return newFixedLengthResponse(Response.Status.NO_CONTENT, "text/plain", "")
-<<<<<<< HEAD
-                .also { corsHeaders.forEach { (k, v) -> it.addHeader(k, v) } }
-=======
-                .also { headers -> corsHeaders.forEach { (k, v) -> headers.addHeader(k, v) } }
->>>>>>> origin/mobile-sdk-compatibility-fix
+            val resp = newFixedLengthResponse(Response.Status.NO_CONTENT, "text/plain", "")
+            corsHeaders.forEach { (k, v) -> resp.addHeader(k, v) }
+            return resp
         }
 
         val uri = session.uri
         val response = try {
-<<<<<<< HEAD
-            when {
-                uri == "/health" -> jsonResponse(mapOf(
-                    "status" to "ok",
-                    "service" to "zyraxon-automation",
-                    "version" to "1.0.0",
-                    "foreground" to service.getForegroundApp()
-                ))
-                uri == "/ui-tree" -> jsonResponse(parseJson(service.getUiDump()))
-                uri == "/screen-text" -> jsonResponse(mapOf("text" to service.getAllText()))
-                uri == "/foreground-app" -> jsonResponse(mapOf("app" to service.getForegroundApp()))
-                uri == "/click/text" -> handleClickByText(session)
-                uri == "/click/coordinate" -> handleClickCoordinate(session)
-                uri == "/swipe" -> handleSwipe(session)
-                uri == "/type" -> handleType(session)
-                uri == "/scroll" -> handleScroll(session)
-                uri == "/go-back" -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
-                    jsonResponse(mapOf("success" to true))
-                }
-                uri == "/go-home" -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
-                    jsonResponse(mapOf("success" to true))
-                }
-                uri == "/go-recents" -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
-                    jsonResponse(mapOf("success" to true))
-                }
-                uri == "/notification" -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
-                    jsonResponse(mapOf("success" to true))
-                }
-                uri == "/quick-settings" -> {
-                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
-                    jsonResponse(mapOf("success" to true))
-                }
-                else -> jsonResponse(mapOf("error" to "Not found"), 404)
-=======
             when (uri) {
-                // ========== GET REQUESTS ==========
                 "/health" -> jsonResponse(mapOf(
                     "status" to "ok",
                     "service" to "zyraxon-automation",
@@ -161,241 +55,77 @@ class HttpServer(
                 ))
                 
                 "/ui-tree" -> jsonResponse(parseJson(service.getUiDump()))
-                
                 "/screen-text" -> jsonResponse(mapOf("text" to service.getAllText()))
-                
                 "/all-elements" -> jsonResponse(parseJson(service.getAllElements()))
-                
                 "/foreground-app" -> jsonResponse(mapOf(
                     "app" to service.getForegroundApp(),
                     "package" to service.getForegroundApp().split("/").firstOrNull(),
                     "activity" to service.getForegroundApp().split("/").lastOrNull()
                 ))
-                
                 "/device-info" -> jsonResponse(service.getDeviceInfo())
-                
                 "/installed-apps" -> jsonResponse(parseJson(service.getInstalledApps()))
-                
-                "/battery" -> jsonResponse(mapOf(
-                    "level" to service.getBatteryLevel(),
-                    "percentage" to "${service.getBatteryLevel()}%"
-                ))
-                
+                "/battery" -> jsonResponse(mapOf("level" to service.getBatteryLevel()))
                 "/screen-on" -> jsonResponse(mapOf("on" to service.isScreenOn()))
-                
                 "/wifi-enabled" -> jsonResponse(mapOf("enabled" to service.isWifiEnabled()))
-                
                 "/bluetooth-enabled" -> jsonResponse(mapOf("enabled" to service.isBluetoothEnabled()))
+                "/brightness" -> jsonResponse(mapOf("level" to service.getBrightness()))
                 
-                "/brightness" -> jsonResponse(mapOf(
-                    "level" to service.getBrightness(),
-                    "percentage" to "${service.getBrightness()}%"
-                ))
+                "/click/text" -> handleClickByText(session)
+                "/click/id" -> handleClickById(session)
+                "/click/description" -> handleClickByDescription(session)
+                "/click/coordinate" -> handleClickCoordinate(session)
+                "/double-click" -> handleDoubleClick(session)
+                "/long-press" -> handleLongPress(session)
+                "/swipe" -> handleSwipe(session)
+                "/scroll" -> handleScroll(session)
+                "/type" -> handleType(session)
                 
-                // ========== POST REQUESTS - CLICK ==========
-                "/click/text" -> {
-                    val body = readBody(session)
-                    val text = body.get("text")?.asString ?: return jsonResponse(mapOf("error" to "No text"), 400)
-                    val partial = body.get("partial")?.asBoolean ?: true
-                    val success = service.clickByText(text, partial)
-                    jsonResponse(mapOf("success" to success))
-                }
+                "/clear-text" -> { jsonResponse(mapOf("success" to service.clearText())) }
+                "/press-enter" -> { jsonResponse(mapOf("success" to service.pressEnter())) }
+                "/check" -> { jsonResponse(mapOf("success" to service.check())) }
+                "/uncheck" -> { jsonResponse(mapOf("success" to service.uncheck())) }
+                "/toggle" -> { jsonResponse(mapOf("success" to service.toggle())) }
+                "/expand" -> { jsonResponse(mapOf("success" to service.expand())) }
+                "/collapse" -> { jsonResponse(mapOf("success" to service.collapse())) }
+                "/open-app" -> handleOpenApp(session)
+                "/app-installed" -> handleAppInstalled(session)
+                "/vibrate" -> handleVibrate(session)
                 
-                "/click/id" -> {
-                    val body = readBody(session)
-                    val id = body.get("id")?.asString ?: return jsonResponse(mapOf("error" to "No id"), 400)
-                    val success = service.clickByResourceId(id)
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/click/description" -> {
-                    val body = readBody(session)
-                    val desc = body.get("description")?.asString ?: return jsonResponse(mapOf("error" to "No description"), 400)
-                    val partial = body.get("partial")?.asBoolean ?: true
-                    val success = service.clickByDescription(desc, partial)
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/click/coordinate" -> {
-                    val body = readBody(session)
-                    val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
-                    val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
-                    val success = service.clickAtCoordinate(x, y)
-                    jsonResponse(mapOf("success" to success, "x" to x, "y" to y))
-                }
-                
-                "/double-click" -> {
-                    val body = readBody(session)
-                    val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
-                    val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
-                    val success = service.doubleClickAtCoordinate(x, y)
-                    jsonResponse(mapOf("success" to success, "x" to x, "y" to y))
-                }
-                
-                "/long-press" -> {
-                    val body = readBody(session)
-                    val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
-                    val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
-                    val success = service.longClickAtCoordinate(x, y)
-                    jsonResponse(mapOf("success" to success, "x" to x, "y" to y))
-                }
-                
-                // ========== POST REQUESTS - GESTURE ==========
-                "/swipe" -> {
-                    val body = readBody(session)
-                    val x1 = body.get("x1")?.asInt ?: return jsonResponse(mapOf("error" to "No x1"), 400)
-                    val y1 = body.get("y1")?.asInt ?: return jsonResponse(mapOf("error" to "No y1"), 400)
-                    val x2 = body.get("x2")?.asInt ?: return jsonResponse(mapOf("error" to "No x2"), 400)
-                    val y2 = body.get("y2")?.asInt ?: return jsonResponse(mapOf("error" to "No y2"), 400)
-                    val dur = body.get("duration")?.asLong ?: 300
-                    val success = service.swipe(x1, y1, x2, y2, dur)
-                    jsonResponse(mapOf("success" to success, "from" to "$x1,$y1", "to" to "$x2,$y2"))
-                }
-                
-                "/scroll" -> {
-                    val body = readBody(session)
-                    val direction = body.get("direction")?.asString ?: "forward"
-                    val success = when (direction) {
-                        "backward" -> service.scroll(false)
-                        "up" -> service.scrollUp()
-                        "down" -> service.scrollDown()
-                        else -> service.scroll(true)
-                    }
-                    jsonResponse(mapOf("success" to success, "direction" to direction))
-                }
-                
-                // ========== POST REQUESTS - TEXT ==========
-                "/type" -> {
-                    val body = readBody(session)
-                    val text = body.get("text")?.asString ?: return jsonResponse(mapOf("error" to "No text"), 400)
-                    val success = service.typeText(text)
-                    jsonResponse(mapOf("success" to success, "text" to text))
-                }
-                
-                "/clear-text" -> {
-                    val success = service.clearText()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/press-enter" -> {
-                    val success = service.pressEnter()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/press-delete" -> {
-                    val success = service.pressDelete()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                // ========== POST REQUESTS - CHECKBOX ==========
-                "/check" -> {
-                    val success = service.check()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/uncheck" -> {
-                    val success = service.uncheck()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/toggle" -> {
-                    val success = service.toggle()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                // ========== POST REQUESTS - EXPAND ==========
-                "/expand" -> {
-                    val success = service.expand()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                "/collapse" -> {
-                    val success = service.collapse()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                // ========== POST REQUESTS - APPS ==========
-                "/open-app" -> {
-                    val body = readBody(session)
-                    val pkg = body.get("package")?.asString ?: return jsonResponse(mapOf("error" to "No package"), 400)
-                    val success = service.openApp(pkg)
-                    jsonResponse(mapOf("success" to success, "package" to pkg))
-                }
-                
-                "/app-installed" -> {
-                    val body = readBody(session)
-                    val pkg = body.get("package")?.asString ?: return jsonResponse(mapOf("error" to "No package"), 400)
-                    val installed = service.isAppInstalled(pkg)
-                    jsonResponse(mapOf("installed" to installed, "package" to pkg))
-                }
-                
-                // ========== POST REQUESTS - DEVICE ==========
-                "/vibrate" -> {
-                    val body = readBody(session)
-                    val patternArray = body.getAsJsonArray("pattern")
-                    val pattern = if (patternArray != null) {
-                        patternArray.map { it.asLong }.toLongArray()
-                    } else {
-                        longArrayOf(0, 100)
-                    }
-                    val success = service.vibrate(pattern)
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                // ========== GLOBAL ACTIONS ==========
                 "/go-back" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/go-home" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/go-recents" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/notification" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/quick-settings" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/screenshot" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/power-dialog" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
                     jsonResponse(mapOf("success" to true))
                 }
-                
                 "/lock-screen" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
                     jsonResponse(mapOf("success" to true))
                 }
+                "/pinch-zoom" -> { jsonResponse(mapOf("success" to service.pinchZoom())) }
                 
-                // ========== PINCH ZOOM ==========
-                "/pinch-zoom" -> {
-                    val success = service.pinchZoom()
-                    jsonResponse(mapOf("success" to success))
-                }
-                
-                // ========== NOT FOUND ==========
-                else -> jsonResponse(mapOf("error" to "Not found: $uri", "available" to listOf(
-                    "/health", "/ui-tree", "/screen-text", "/foreground-app", "/device-info",
-                    "/installed-apps", "/battery", "/click/text", "/click/coordinate",
-                    "/swipe", "/scroll", "/type", "/go-back", "/go-home", "/open-app"
-                )), 404)
->>>>>>> origin/mobile-sdk-compatibility-fix
+                else -> jsonResponse(mapOf("error" to "Not found: $uri"), 404)
             }
         } catch (e: Exception) {
             Log.e("ZyraxonHttp", "Error handling $uri: " + e.message)
@@ -406,21 +136,45 @@ class HttpServer(
         return response
     }
 
-<<<<<<< HEAD
     private fun handleClickByText(session: IHTTPSession): Response {
         val body = readBody(session)
-        val text = body?.get("text")?.asString ?: return jsonResponse(mapOf("error" to "No text"), 400)
+        val text = body.get("text")?.asString ?: return jsonResponse(mapOf("error" to "No text"), 400)
         val partial = body.get("partial")?.asBoolean ?: true
-        val success = service.clickByText(text, partial)
-        return jsonResponse(mapOf("success" to success))
+        return jsonResponse(mapOf("success" to service.clickByText(text, partial)))
+    }
+    
+    private fun handleClickById(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val id = body.get("id")?.asString ?: return jsonResponse(mapOf("error" to "No id"), 400)
+        return jsonResponse(mapOf("success" to service.clickByResourceId(id)))
+    }
+    
+    private fun handleClickByDescription(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val desc = body.get("description")?.asString ?: return jsonResponse(mapOf("error" to "No description"), 400)
+        val partial = body.get("partial")?.asBoolean ?: true
+        return jsonResponse(mapOf("success" to service.clickByDescription(desc, partial)))
     }
 
     private fun handleClickCoordinate(session: IHTTPSession): Response {
         val body = readBody(session)
         val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
         val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
-        val success = service.clickAtCoordinate(x, y)
-        return jsonResponse(mapOf("success" to success))
+        return jsonResponse(mapOf("success" to service.clickAtCoordinate(x, y)))
+    }
+    
+    private fun handleDoubleClick(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
+        val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
+        return jsonResponse(mapOf("success" to service.doubleClickAtCoordinate(x, y)))
+    }
+    
+    private fun handleLongPress(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val x = body.get("x")?.asInt ?: return jsonResponse(mapOf("error" to "No x"), 400)
+        val y = body.get("y")?.asInt ?: return jsonResponse(mapOf("error" to "No y"), 400)
+        return jsonResponse(mapOf("success" to service.longClickAtCoordinate(x, y)))
     }
 
     private fun handleSwipe(session: IHTTPSession): Response {
@@ -429,27 +183,49 @@ class HttpServer(
         val y1 = body.get("y1")?.asInt ?: return jsonResponse(mapOf("error" to "No y1"), 400)
         val x2 = body.get("x2")?.asInt ?: return jsonResponse(mapOf("error" to "No x2"), 400)
         val y2 = body.get("y2")?.asInt ?: return jsonResponse(mapOf("error" to "No y2"), 400)
-        val dur = body.get("duration")?.asLong ?: 300
-        val success = service.swipe(x1, y1, x2, y2, dur)
-        return jsonResponse(mapOf("success" to success))
+        val duration = body.get("duration")?.asLong ?: 300L
+        return jsonResponse(mapOf("success" to service.swipe(x1, y1, x2, y2, duration)))
     }
 
     private fun handleType(session: IHTTPSession): Response {
         val body = readBody(session)
         val text = body.get("text")?.asString ?: return jsonResponse(mapOf("error" to "No text"), 400)
-        val success = service.typeText(text)
-        return jsonResponse(mapOf("success" to success))
+        return jsonResponse(mapOf("success" to service.typeText(text)))
     }
 
     private fun handleScroll(session: IHTTPSession): Response {
         val body = readBody(session)
-        val forward = body.get("direction")?.asString != "backward"
-        val success = service.scroll(forward)
+        val direction = body.get("direction")?.asString ?: "forward"
+        val success = when (direction) {
+            "backward", "up", "upward" -> service.scroll(false)
+            else -> service.scroll(true)
+        }
         return jsonResponse(mapOf("success" to success))
     }
+    
+    private fun handleOpenApp(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val pkg = body.get("package")?.asString ?: return jsonResponse(mapOf("error" to "No package"), 400)
+        return jsonResponse(mapOf("success" to service.openApp(pkg), "package" to pkg))
+    }
+    
+    private fun handleAppInstalled(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val pkg = body.get("package")?.asString ?: return jsonResponse(mapOf("error" to "No package"), 400)
+        return jsonResponse(mapOf("installed" to service.isAppInstalled(pkg), "package" to pkg))
+    }
+    
+    private fun handleVibrate(session: IHTTPSession): Response {
+        val body = readBody(session)
+        val patternArray = body.getAsJsonArray("pattern")
+        val pattern = if (patternArray != null) {
+            patternArray.map { it.asLong }.toLongArray()
+        } else {
+            longArrayOf(0, 100)
+        }
+        return jsonResponse(mapOf("success" to service.vibrate(pattern)))
+    }
 
-=======
->>>>>>> origin/mobile-sdk-compatibility-fix
     private fun readBody(session: IHTTPSession): com.google.gson.JsonObject {
         val files = HashMap<String, String>()
         session.parseBody(files)
