@@ -7,7 +7,14 @@ const app = new Hono()
 
 app.use('/*', cors({ origin: '*', allowHeaders: ['Content-Type'], allowMethods: ['POST', 'GET', 'OPTIONS'] }))
 
-app.get('/health', (c) => c.json({ status: 'ok', service: 'zyraxon-mobile-agent', version: '1.0.0' }))
+app.get('/health', (c) => c.json({
+  status: 'ok',
+  service: 'zyraxon-mobile-agent',
+  version: '1.0.0',
+  api_url: process.env.OPENCODE_API_URL ?? '(not set)',
+  api_key_set: process.env.OPENCODE_API_KEY ? 'yes' : 'no',
+  model: process.env.MOBILE_AI_MODEL ?? '(not set)',
+}))
 
 app.get('/diagnostic', async (c) => {
   try {
