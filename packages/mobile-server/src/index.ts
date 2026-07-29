@@ -45,30 +45,35 @@ app.get('/diagnostic3', async (c) => {
   try {
     const baseUrl = process.env.OPENCODE_API_URL ?? 'https://opencode.ai/zen/v1'
     const model = process.env.MOBILE_AI_MODEL ?? 'mimo-v2.5-free'
-
-    // Test 1: why does system prompt cause "Not Found"?
     const tests: any[] = []
 
-    // A: short system prompt
+    // A: no max_tokens (default)
     const r1 = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are a helpful assistant that replies in one word.' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }] }),
     })
-    tests.push({ name: 'short-sys', status: r1.status, body: (await r1.text()).slice(0, 100) })
+    tests.push({ name: 'no-max-tokens', status: r1.status, body: (await r1.text()).slice(0, 100) })
 
-    // B: system prompt with JSON template
+    // B: max_tokens=50
     const r2 = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Respond with JSON: {"text":"answer"}' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 50 }),
     })
-    tests.push({ name: 'json-sys', status: r2.status, body: (await r2.text()).slice(0, 100) })
+    tests.push({ name: 'max50', status: r2.status, body: (await r2.text()).slice(0, 100) })
 
-    // C: longer system prompt
+    // C: max_tokens=100
     const r3 = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are ZYRAXON AI Mobile Agent. You control Android devices. Respond with JSON.' }, { role: 'user', content: 'say hello' }], max_tokens: 4096 }),
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 100 }),
     })
-    tests.push({ name: 'zyraxon-sys', status: r3.status, body: (await r3.text()).slice(0, 100) })
+    tests.push({ name: 'max100', status: r3.status, body: (await r3.text()).slice(0, 100) })
+
+    // D: max_tokens=512
+    const r4 = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'Say hello in one word.' }, { role: 'user', content: 'hello' }], max_tokens: 512 }),
+    })
+    tests.push({ name: 'max512', status: r4.status, body: (await r4.text()).slice(0, 100) })
 
     return c.json({ tests })
   } catch (err: any) {
