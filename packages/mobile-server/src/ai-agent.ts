@@ -123,9 +123,15 @@ export async function processAgentRequest(req: AgentRequest): Promise<AgentRespo
     const raw = msg.content || msg.reasoning_content || msg.reasoning || ''
     const clean = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
     let response: AgentResponse
-    try {
-      response = JSON.parse(clean)
-    } catch {
+
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      try {
+        response = JSON.parse(jsonMatch[0])
+      } catch {
+        response = { text: clean, actions: [], finish_reason: 'complete' }
+      }
+    } else {
       response = { text: clean || 'No response generated', actions: [], finish_reason: 'complete' }
     }
 
