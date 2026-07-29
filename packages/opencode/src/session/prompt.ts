@@ -58,85 +58,8 @@ import { SessionReminders } from "./reminders"
 import { SessionTools } from "./tools"
 import { LLMEvent } from "@opencode-ai/llm"
 
-// Vision — screenshot capture using autoScreenVision module
+// Vision — auto-inject latest daemon screenshot for ALL modes
 import { autoScreenVision } from "../screen/auto-vision"
-import { Global } from "@opencode-ai/core/global"
-import fs from "fs"
-
-async function captureScreenshotDirect(): Promise<{ buffer: Buffer; width: number; height: number } | null> {
-  const { spawnSync } = await import("child_process")
-  const dataDir = path.join(Global.Path.data, "screen_vision")
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
-  const outFile = path.join(dataDir, `vision_${Date.now()}.png`)
-
-  // Method 1: VisionContext cached frame (instant)
-  try {
-    const { VisionContext } = await import("../screen/vision-context")
-    if (VisionContext.isRunning()) {
-      const cached = VisionContext.getLatestImage()
-      if (cached && cached.imageBuffer && cached.imageBuffer.length > 1000) {
-        return { buffer: cached.imageBuffer, width: cached.width, height: cached.height }
-      }
-    }
-  } catch {}
-
-  // Method 2: PowerShell via -File (no escaping issues, CopyFromScreen with explicit Size object)
-  try {
-    const psFile = path.join(dataDir, `cap_${Date.now()}.ps1`)
-    const psLines = [
-      "Add-Type -AssemblyName System.Windows.Forms",
-      "Add-Type -AssemblyName System.Drawing",
-      "try {",
-      "  $scr = [System.Windows.Forms.Screen]::PrimaryScreen",
-      "  $w = $scr.Bounds.Width",
-      "  $h = $scr.Bounds.Height",
-      "  $bmp = New-Object System.Drawing.Bitmap($w, $h)",
-      "  $gfx = [System.Drawing.Graphics]::FromImage($bmp)",
-      "  $gfx.CopyFromScreen($scr.Bounds.Location, [System.Drawing.Point]::Empty, $scr.Bounds.Size)",
-      "  $bmp.Save('" + outFile.replace(/\\/g, "\\\\") + "')",
-      "  $gfx.Dispose()",
-      "  $bmp.Dispose()",
-      "  Write-Output ('OK:' + $w + ':' + $h)",
-      "} catch {",
-      "  Write-Output ('ERR:' + $_.Exception.Message)",
-      "}",
-    ]
-    fs.writeFileSync(psFile, psLines.join("\r\n"), "utf-8")
-    spawnSync("powershell", ["-ExecutionPolicy", "Bypass", "-NoProfile", "-Sta", "-File", psFile], {
-      timeout: 20000,
-      windowsHide: true,
-      encoding: "utf-8",
-    })
-    try { fs.unlinkSync(psFile) } catch {}
-    if (fs.existsSync(outFile)) {
-      const stats = fs.statSync(outFile)
-      if (stats.size > 1000) {
-        const buffer = fs.readFileSync(outFile)
-        try { fs.unlinkSync(outFile) } catch {}
-        return { buffer, width: 1920, height: 1080 }
-      }
-    }
-  } catch {}
-
-  // Method 3: autoScreenVision module
-  try {
-    const capture = await autoScreenVision.autoCaptureScreen()
-    if (capture && capture.filepath && capture.size > 1000) {
-      const buffer = fs.readFileSync(capture.filepath)
-      if (buffer.length > 1000) return { buffer, width: 1920, height: 1080 }
-    }
-  } catch {}
-
-  return null
-}
-
-// Check if current agent is vision mode
-function isVisionAgent(agent: any): boolean {
-  if (!agent) return false
-  if (typeof agent === "string") return agent.toLowerCase().includes("vision")
-  if (agent.name && typeof agent.name === "string") return agent.name.toLowerCase().includes("vision")
-  return false
-}
 
 // @ts-ignore
 globalThis.AI_SDK_LOG_WARNINGS = false
@@ -1358,67 +1281,43 @@ const layer = Layer.effect(
             const autoCtx = yield* Effect.promise(() => autoInjectContext(lastUserText, lastUser.agent))
             if (autoCtx) system.push(autoCtx)
 
-            // VISION MODE: Take live screenshot and inject as IMAGE
-            // AI sees the actual screen as a file attachment — not visible in conversation
+            // AUTO VISION: Inject latest daemon screenshot as image for ALL agents
+            // 24/7 daemon captures every 3s — only the latest single frame exists
             let finalMessages = [...modelMsgs]
-            if (isVisionAgent(agent)) {
-              try {
-                const screenshot = yield* Effect.promise(() => captureScreenshotDirect())
-                if (screenshot && screenshot.buffer && screenshot.buffer.length > 500) {
-                  const base64 = screenshot.buffer.toString("base64")
-                  const isPng = screenshot.buffer[0] === 0x89 && screenshot.buffer[1] === 0x50
-                  const mimeType = isPng ? "image/png" : "image/jpeg"
-                  const dataUrl = `data:${mimeType};base64,${base64}`
+            try {
+              const { capture: daemonCap, buffer: daemonBuf } = autoScreenVision.getLatestCapture()
+              if (daemonCap && daemonBuf && daemonBuf.length > 500 && daemonCap.filepath) {
+                const base64 = daemonBuf.toString("base64")
+                const isPng = daemonBuf[0] === 0x89 && daemonBuf[1] === 0x50
+                const mimeType = isPng ? "image/png" : "image/jpeg"
+                const dataUrl = `data:${mimeType};base64,${base64}`
 
-                  // Find last user message and attach image to it (invisible in UI)
-                  const lastUserMsgIndex = finalMessages.findLastIndex(
-                    (m: any) => m.role === "user"
-                  )
-                  if (lastUserMsgIndex >= 0) {
-                    const lastMsg = finalMessages[lastUserMsgIndex] as any
-                    if (typeof lastMsg.content === "string") {
-                      // Convert string content to parts array and add image
-                      lastMsg.content = [
-                        { type: "text", text: lastMsg.content },
-                        { type: "image", image: dataUrl, mediaType: mimeType },
-                      ]
-                    } else if (Array.isArray(lastMsg.content)) {
-                      // Add image file part to existing parts array
-                      lastMsg.content.push({
-                        type: "image",
-                        image: dataUrl,
-                        mediaType: mimeType,
-                      })
-                    }
-                    yield* Effect.logInfo("vision screenshot attached to user message", {
-                      width: screenshot.width,
-                      height: screenshot.height,
-                      size: screenshot.buffer.length,
-                      mimeType,
-                    })
-                  } else {
-                    // No user message yet — create one
-                    const visionMessage: ModelMessage = {
-                      role: "user" as const,
-                      content: [
-                        { type: "text" as const, text: "Screen vision attached." },
-                        { type: "image" as const, image: dataUrl, mediaType: mimeType },
-                      ],
-                    }
-                    finalMessages.push(visionMessage)
-                    yield* Effect.logInfo("vision screenshot injected as new message", {
-                      width: screenshot.width,
-                      height: screenshot.height,
-                      size: screenshot.buffer.length,
-                      mimeType,
-                    })
+                const lastUserMsgIndex = finalMessages.findLastIndex((m: any) => m.role === "user")
+                if (lastUserMsgIndex >= 0) {
+                  const lastMsg = finalMessages[lastUserMsgIndex] as any
+                  if (typeof lastMsg.content === "string") {
+                    lastMsg.content = [
+                      { type: "text", text: lastMsg.content },
+                      { type: "image", image: dataUrl, mediaType: mimeType },
+                    ]
+                  } else if (Array.isArray(lastMsg.content)) {
+                    lastMsg.content.push({ type: "image", image: dataUrl, mediaType: mimeType })
                   }
                 } else {
-                  yield* Effect.logWarning("vision screenshot capture returned empty/invalid data")
+                  finalMessages.push({
+                    role: "user",
+                    content: [
+                      { type: "text", text: "Screen vision attached." },
+                      { type: "image", image: dataUrl, mediaType: mimeType },
+                    ],
+                  })
                 }
-              } catch (e) {
-                yield* Effect.logError("vision screenshot injection failed", { error: e })
+                yield* Effect.logInfo("auto-vision screenshot injected", {
+                  size: daemonBuf.length, mimeType,
+                })
               }
+            } catch (e) {
+              yield* Effect.logError("auto-vision injection failed", { error: e })
             }
 
             const format = lastUser.format ?? { type: "text" as const }

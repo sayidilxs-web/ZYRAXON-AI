@@ -12,6 +12,7 @@ import { ultraTools } from "./ultra-tools"
 import { proBuilderTools } from "./pro-builder-tools"
 import { autoMemory } from "../memory/auto-injection"
 import { autoScreenVision } from "../screen/auto-vision"
+import { omniTools } from "./omni-tools"
 
 // ============================================
 // TOOL REGISTRY — 100+ TOOLS
@@ -170,12 +171,15 @@ export const TOOL_REGISTRY = {
     smartRecall: autoMemory.smartRecall,
   },
 
-  // Auto Screen Vision (ALWAYS ACTIVE)
+  // Auto Screen Vision (24/7 SILENT DAEMON)
   vision: {
-    autoCapture: autoScreenVision.autoScreenVision.autoCaptureScreen,
-    getLatest: autoScreenVision.autoScreenVision.getLatestCapture,
-    history: autoScreenVision.autoScreenVision.getCaptureHistory,
-    describe: autoScreenVision.autoScreenVision.describeScreen,
+    captureNow: autoScreenVision.captureNow,
+    getLatest: autoScreenVision.getLatestCapture,
+    ringBuffer: autoScreenVision.getRingBuffer,
+    history: autoScreenVision.getCaptureHistory,
+    describe: autoScreenVision.describeScreen,
+    status: autoScreenVision.getDaemonStatus,
+    isRunning: autoScreenVision.isDaemonRunning,
   },
 
   // DARK EMPEROR ULTRA TOOLS (8 tools)
@@ -200,6 +204,25 @@ export const TOOL_REGISTRY = {
     siteDomain: proBuilderTools.siteDomain,
     autoStartSites: proBuilderTools.autoStartSites,
   },
+
+  // OMNI-KERNEL ULTRA-15 MECHANISMS (15 tools)
+  omni: {
+    multiFileCompose: omniTools.omniMultiFileCompose,
+    terminalAutonomy: omniTools.omniTerminalAutonomy,
+    backgroundLoop: omniTools.omniBackgroundLoop,
+    behaviorCascade: omniTools.omniBehaviorCascade,
+    gitPair: omniTools.omniGitPair,
+    sandboxRuntime: omniTools.omniSandboxRuntime,
+    ideaToDeploy: omniTools.omniIdeaToDeploy,
+    costRouter: omniTools.omniCostRouter,
+    liveObservability: omniTools.omniLiveObservability,
+    knowledgeGraph: omniTools.omniKnowledgeGraph,
+    securityScan: omniTools.omniSecurityScan,
+    silentPrecompile: omniTools.omniSilentPrecompile,
+    visualContextSync: omniTools.omniVisualContextSync,
+    selfEvolvingPrompt: omniTools.omniSelfEvolvingPrompt,
+    zeroTrustStrip: omniTools.omniZeroTrustStrip,
+  },
 }
 
 // Tool count
@@ -211,10 +234,11 @@ export const TOOL_COUNT = {
   ai: 20,
   productivity: 20,
   memory: 4,
-  vision: 4,
+  vision: 7,
   ultra: 8,
   proBuilder: 7,
-  total: 143,
+  omni: 15,
+  total: 161,
 }
 
 // Get tool by category and name
