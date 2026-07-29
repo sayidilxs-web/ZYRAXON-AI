@@ -5,44 +5,24 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "zyraxonai",
-    "userInterfaceStyle": "automatic",
+    "scheme": "zyraxon",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
       "backgroundColor": "#0a0a0f"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ai.zyraxon.mobile",
-      "infoPlist": {
-        "NSCameraUsageDescription": "ZYRAXON needs camera access for screen vision and AI analysis",
-        "NSMicrophoneUsageDescription": "ZYRAXON needs microphone access for voice input",
-        "NSPhotoLibraryUsageDescription": "ZYRAXON needs photo library access to analyze images"
-      }
+      "bundleIdentifier": "ai.zyraxon.mobile"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0a0a0f",
-        "backgroundImage": "./assets/adaptive-icon-bg.png"
+        "backgroundColor": "#0a0a0f"
       },
-      "package": "ai.zyraxon.mobile",
-      "permissions": [
-        "CAMERA",
-        "RECORD_AUDIO",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
-      ]
+      "package": "ai.zyraxon.mobile"
     },
     "plugins": [
       "expo-router"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    }
+    ]
   }
 }

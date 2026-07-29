@@ -127,4 +127,4 @@ ZYRAXON містить два вбудовані агенти, між якими
 
 ---
 
-**Приєднуйтеся до нашої спільноти** [Discord](https://discord.gg/ZYRAXON) | [X.com](https://x.com/ZYRAXON)
+**Приєднуйтеся до нашої спільноти** [Discord](https://discord.gg/DN4fZCCDJj)

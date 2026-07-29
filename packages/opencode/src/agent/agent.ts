@@ -21,6 +21,7 @@ import PROMPT_PRO from "./prompt/pro.txt"
 import PROMPT_APEX from "./prompt/apex.txt"
 import PROMPT_DARK_EMPEROR from "./prompt/dark-emperor.txt"
 import PROMPT_PRO_BUILDER from "./prompt/pro-builder.txt"
+import PROMPT_VISION from "./prompt/vision.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -327,6 +328,38 @@ const layer = Layer.effect(
             mode: "primary",
             native: true,
           },
+          vision: {
+            name: "vision",
+            description: "VISION MODE — AI's Eyes with real-time screen awareness and memory. Continuous 24/7 screen capture, frame analysis, scene change detection, activity tracking, and intelligent memory recall. You SEE what the user sees, REMEMBER every moment, and UNDERSTAND the context. The most powerful visual intelligence system.",
+            options: {},
+            color: "#8B5CF6",
+            prompt: PROMPT_VISION,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+                plan_exit: "allow",
+                task: {
+                  "*": "allow",
+                  general: "allow",
+                  explore: "allow",
+                },
+                todowrite: "allow",
+                memory: "allow",
+                self_evolve: "allow",
+                read: "allow",
+                write: "allow",
+                glob: "allow",
+                grep: "allow",
+                bash: "allow",
+                screen_vision: "deny",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
           general: {
             name: "general",
             description: `GENERAL MODE — Mesh-connected subagent for delegated tasks. Part of a living network where subagents communicate, share discoveries, and collaborate in real-time. Handles research, code analysis, file operations, and multi-step workflows. Shares results with other subagents through the mesh.`,
@@ -458,6 +491,28 @@ const layer = Layer.effect(
         }
 
         const get = Effect.fnUntraced(function* (agent: string) {
+          // Auto-start Vision Mode when vision agent is selected
+          if (agent === "vision") {
+            yield* Effect.promise(async () => {
+              try {
+                const { VisionContext } = await import("../screen/vision-context")
+                if (!VisionContext.isRunning()) {
+                  await VisionContext.start({ autoAnalyze: true, lowLatency: true })
+                }
+              } catch {}
+            })
+          }
+          // Auto-stop Vision Mode when switching away from vision agent
+          else {
+            yield* Effect.promise(async () => {
+              try {
+                const { VisionContext } = await import("../screen/vision-context")
+                if (VisionContext.isRunning()) {
+                  VisionContext.stop()
+                }
+              } catch {}
+            })
+          }
           return agents[agent]
         })
 

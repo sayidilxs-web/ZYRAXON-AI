@@ -17,8 +17,9 @@
   <a href="https://github.com/onelpawarai/ZYRAXON-AI/releases"><img alt="Version" src="https://img.shields.io/github/v/release/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=blue" /></a>
   <a href="https://github.com/onelpawarai/ZYRAXON-AI/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=yellow" /></a>
   <a href="https://github.com/onelpawarai/ZYRAXON-AI/issues"><img alt="Issues" src="https://img.shields.io/github/issues/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=red" /></a>
-  <a href="https://github.com/onelpawarai/ZYRAXON-AI/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=green" /></a>
+  <a href="https://github.com/onelpawarai/ZYRAXON-AI/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-BSL%201.1-green?style=for-the-badge" /></a>
   <a href="https://github.com/onelpawarai/ZYRAXON-AI/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/onelpawarai/ZYRAXON-AI/total?style=for-the-badge&color=purple" /></a>
+  <a href="https://github.com/onelpawarai/ZYRAXON-AI/network/members"><img alt="Forks" src="https://img.shields.io/github/forks/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=cyan" /></a>
 </p>
 
 <p align="center">
@@ -30,7 +31,7 @@
 <p align="center">
   <strong>Desktop AI agent that actually does things. Not a chatbot - an action-bot.</strong><br>
   Reads your files. Writes your code. Runs your commands. Builds your projects. Deploys your apps.<br>
-  It has <strong>7 Agent Modes</strong>, <strong>136+ Tools</strong>, <strong>Eternal Memory</strong>, <strong>Self-Healing</strong>, and it <strong>evolves itself</strong>.
+  It has <strong>9 Agent Modes</strong>, <strong>136+ Tools</strong>, <strong>Eternal Memory</strong>, <strong>Self-Healing</strong>, and it <strong>evolves itself</strong>.
 </p>
 
 ---
@@ -42,11 +43,12 @@ ZYRAXON-AI is an open-source desktop AI agent built on Electron + SolidJS + Bun.
 ### What Makes ZYRAXON Different
 
 - **Self-Healing** - If a tool is missing, ZYRAXON installs it automatically. Never fails due to missing capabilities.
-- **7 Agent Modes** - Build, Plan, Beast, PRO, APEX PREDATOR, DARK EMPEROR, General
+- **9 Agent Modes** - Build, Plan, Beast, PRO, APEX PREDATOR, DARK EMPEROR, Vision, Pro Builder, General
 - **136+ Tools** - 124 MCP tools + 8 ULTRA tools + 4 vision tools
 - **Eternal Memory** - Remembers everything forever. 50,000+ memories with compression.
 - **Self-Evolution** - Installs its own MCP servers and tools at runtime
 - **Auto Screen Vision** - Automatically captures your screen before every response
+- **Vision Mode** - AI's Eyes: real-time screen streaming, frame memory, scene analysis, activity tracking
 - **YouTube Live Streaming** - Stream directly to YouTube (4K/1080p/720p, APP or full screen capture)
 - **Voice Input** - ~~Click the mic, speak naturally, it transcribes via Whisper~~ **(Temporarily disabled)** - We had to disable the chat box microphone due to a critical bug that caused system-level conflicts. We are working on a fix and will bring it back soon.
 - **25+ AI Providers** - OpenAI, Anthropic, Google, Azure, Bedrock, xAI, Mistral, and more
@@ -90,6 +92,14 @@ Advanced agent with predictive analysis and eternal memory.
 
 ### General Mode
 Subagent for delegated tasks.
+
+### Vision Mode
+AI's Eyes — real-time screen awareness with memory. 24/7 continuous capture, frame analysis, scene change detection, and intelligent recall.
+> Continuous screen streaming + frame memory + scene analysis + activity tracking + timeline recall
+
+### Pro Builder
+Website genesis intelligence — creates complete, production-ready websites from natural language. Auto-deploys to GitHub Pages.
+> Website Genesis Engine + Media Synthesis + GitHub Pages Autopilot + Live Preview + SEO Optimizer
 
 ---
 
@@ -257,11 +267,11 @@ ZYRAXON-AI/
   packages/
     opencode/          # Core AI agent engine
       src/
-        agent/         # Agent modes (7 modes)
+        agent/         # Agent modes (9 modes)
         mcp/           # MCP servers + ULTRA tools
         tool/          # Tools (memory, self_evolve, shell, etc.)
         session/       # Session management, LLM streaming
-        screen/        # Auto screen vision (async, cross-platform)
+        screen/        # Vision System (capture engine, frame processor, memory, analyzer)
         memory/        # Eternal memory system (50K+ memories)
     desktop/           # Electron desktop app
     app/               # SolidJS UI
@@ -321,6 +331,8 @@ We love contributions! ZYRAXON-AI is open-source and we welcome everyone.
 - [x] YouTube Live Streaming
 - [x] Auto-update system
 - [x] BSL 1.1 License
+- [x] Vision Mode (AI's Eyes — real-time screen streaming + memory)
+- [x] Pro Builder Mode (Website genesis from natural language)
 - [ ] Mobile companion app
 - [ ] Plugin marketplace
 - [ ] Team collaboration features
