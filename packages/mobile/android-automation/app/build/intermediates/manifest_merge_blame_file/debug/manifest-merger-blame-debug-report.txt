@@ -1,11 +1,11 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.zyraxon.automation"
-4    android:versionCode="1"
+4    android:versionCode="2"
 5    android:versionName="1.0.0" >
 6
 7    <uses-sdk
-8        android:minSdkVersion="26"
+8        android:minSdkVersion="21"
 9        android:targetSdkVersion="34" />
 10
 11    <uses-permission android:name="android.permission.INTERNET" />
@@ -39,7 +39,7 @@
 24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 24-->[androidx.core:core:1.12.0] /home/openhands/.gradle/caches/transforms-3/0d4ffc60e85a7c7f9fbeb27599893adc/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 25        android:debuggable="true"
-26        android:extractNativeLibs="false"
+26        android:extractNativeLibs="true"
 27        android:label="ZYRAXON Automation"
 27-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:11:9-43
 28        android:supportsRtl="true"

@@ -318,16 +318,6 @@ class HttpServer(
                     jsonResponse(mapOf("success" to true))
                 }
                 
-                "/search" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_SEARCH)
-                    jsonResponse(mapOf("success" to true))
-                }
-                
-                "/assist" -> {
-                    service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_ASSIST)
-                    jsonResponse(mapOf("success" to true))
-                }
-                
                 // ========== PINCH ZOOM ==========
                 "/pinch-zoom" -> {
                     val success = service.pinchZoom()

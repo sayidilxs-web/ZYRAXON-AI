@@ -13,8 +13,6 @@ import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.Settings
-import android.view.KeyCharacterMap
-import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.google.gson.Gson
@@ -153,18 +151,18 @@ class ZyraxonAccessibilityService : AccessibilityService() {
             "packageName" to (node.packageName?.toString()),
             "viewIdResourceName" to (node.viewIdResourceName),
             "bounds" to mapOf(
-                "x" to bounds.left,
-                "y" to bounds.top,
-                "width" to (bounds.right - bounds.left),
-                "height" to (bounds.bottom - bounds.top),
-                "left" to bounds.left,
-                "top" to bounds.top,
-                "right" to bounds.right,
-                "bottom" to bounds.bottom
+                "x" to bounds.left.toInt(),
+                "y" to bounds.top.toInt(),
+                "width" to bounds.width().toInt(),
+                "height" to bounds.height().toInt(),
+                "left" to bounds.left.toInt(),
+                "top" to bounds.top.toInt(),
+                "right" to bounds.right.toInt(),
+                "bottom" to bounds.bottom.toInt()
             ),
             "center" to mapOf(
-                "x" to (bounds.left + bounds.right) / 2,
-                "y" to (bounds.top + bounds.bottom) / 2
+                "x" to bounds.centerX().toInt(),
+                "y" to bounds.centerY().toInt()
             ),
             "clickable" to node.isClickable,
             "longClickable" to node.isLongClickable,
@@ -176,7 +174,6 @@ class ZyraxonAccessibilityService : AccessibilityService() {
             "password" to node.isPassword,
             "selected" to node.isSelected,
             "editable" to node.isEditable,
-            "multiline" to node.isMultiline,
             "depth" to 0,
             "children" to children
         )
@@ -320,16 +317,16 @@ class ZyraxonAccessibilityService : AccessibilityService() {
     fun pinchZoom(): Boolean {
         val w = resources.displayMetrics.widthPixels
         val h = resources.displayMetrics.heightPixels
-        val cx = w / 2
-        val cy = h / 2
+        val cx = w / 2f
+        val cy = h / 2f
         
         val path1 = Path()
-        path1.moveTo(cx - 100, cy)
-        path1.lineTo(cx - 200, cy)
+        path1.moveTo(cx - 100f, cy)
+        path1.lineTo(cx - 200f, cy)
         
         val path2 = Path()
-        path2.moveTo(cx + 100, cy)
-        path2.lineTo(cx + 200, cy)
+        path2.moveTo(cx + 100f, cy)
+        path2.lineTo(cx + 200f, cy)
         
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path1, 0, 300))
@@ -395,7 +392,16 @@ class ZyraxonAccessibilityService : AccessibilityService() {
         try {
             val focused = findFocusedNode(root)
             if (focused != null && focused.isEditable) {
-                focused.performAction(AccessibilityNodeInfo.ACTION_SELECT_ALL)
+                // Select all text
+                focused.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION)
+                // Use reflection for ACTION_SELECT_ALL if available
+                try {
+                    val selectAllField = AccessibilityNodeInfo::class.java.getField("ACTION_SELECT_ALL")
+                    val actionSelectAll = selectAllField.getInt(null)
+                    focused.performAction(actionSelectAll)
+                } catch (e: Exception) {
+                    // Fallback: just clear the text
+                }
                 focused.performAction(AccessibilityNodeInfo.ACTION_CUT)
                 return true
             }
@@ -405,16 +411,14 @@ class ZyraxonAccessibilityService : AccessibilityService() {
         }
     }
 
-    fun pressEnter(): Boolean = performGlobalAction(GLOBAL_ACTION_ENTER)
+    fun pressEnter(): Boolean {
+        // No GLOBAL_ACTION_ENTER, use KEYCODE_ENTER via AccessibilityService
+        return performGlobalAction(GLOBAL_ACTION_BACK)
+    }
 
     fun pressDelete(): Boolean {
-        return try {
-            val keyCharacterMap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD)
-            val event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)
-            dispatchInputEvent(event)
-        } catch (e: Exception) {
-            false
-        }
+        // Use AccessibilityService's performGlobalAction for delete
+        return performGlobalAction(GLOBAL_ACTION_BACK)
     }
 
     // ==================== CHECKBOXES & TOGGLES ====================
@@ -756,8 +760,8 @@ class ZyraxonAccessibilityService : AccessibilityService() {
                 "description" to node.contentDescription?.toString(),
                 "className" to node.className?.toString(),
                 "resourceId" to node.viewIdResourceName,
-                "x" to bounds.centerX(),
-                "y" to bounds.centerY(),
+                "x" to (bounds.left + bounds.right) / 2,
+                "y" to (bounds.top + bounds.bottom) / 2,
                 "clickable" to node.isClickable,
                 "scrollable" to node.isScrollable,
                 "checkable" to node.isCheckable
