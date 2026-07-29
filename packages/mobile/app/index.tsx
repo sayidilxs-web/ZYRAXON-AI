@@ -3,7 +3,7 @@ import { View, FlatList, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert
 import { theme } from '../src/types/theme'
 import { chatStore } from '../src/store/chatStore'
 import { streamChat, type AiResponse } from '../src/services/api'
-import { executeAction, ensureInitialized } from '../src/mobile-agent/action-executor'
+import { executeAction, executeActionBatch, ensureInitialized, takeScreenshotBase64 } from '../src/mobile-agent/action-executor'
 import type { DeviceAction } from '../src/mobile-agent/protocol'
 import { voiceService } from '../src/services/voice-service'
 import { Header } from '../src/components/Header'
@@ -59,13 +59,79 @@ export default function ChatScreen() {
     setLogLines((prev) => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${line}`])
   }, [])
 
-  const executeActions = useCallback(async (actions: DeviceAction[]) => {
+  const executeActions = useCallback(async (actions: DeviceAction[]): Promise<string | null> => {
+    let screenshot: string | null = null
     for (const action of actions) {
       addLog(`Executing: ${action.type}${action.target ? ' → ' + action.target : ''}`)
       const result = await executeAction(action)
       addLog(`Result: ${result.success ? '✓' : '✗'}${result.error ? ' - ' + result.error : ''}`)
+      if (action.type !== 'wait' && action.type !== 'speak_text') {
+        screenshot = await takeScreenshotBase64()
+        if (screenshot) setLastScreenshot(screenshot)
+      }
     }
+    return screenshot
   }, [addLog])
+
+  const processWithVisionLoop = useCallback(async (
+    text: string,
+    history: Array<{ role: string; content: string }>,
+    initialScreenshot?: string | null,
+  ) => {
+    const MAX_CYCLES = 5
+    let cycleText = text
+    let cycleHistory = [...history]
+    let screenshot = initialScreenshot ?? null
+    let cycleCount = 0
+
+    while (cycleCount < MAX_CYCLES) {
+      addLog(`Vision cycle ${cycleCount + 1}/${MAX_CYCLES}`)
+      setStreaming(true)
+
+      if (screenshot) {
+        setShowVisionPanel(true)
+      }
+
+      await streamChat(
+        cycleText,
+        cycleHistory,
+        agentMode,
+        (token) => setStreamingText((prev) => prev + token),
+        async (response: AiResponse) => {
+          const fullText = streamingText || response.text
+          chatStore.addMessage(fullText, 'assistant')
+          setStreamingText('')
+          setStreaming(false)
+
+          if (response.actions && response.actions.length > 0) {
+            await ensureInitialized()
+            screenshot = await executeActions(response.actions)
+            cycleCount++
+            if (cycleCount >= MAX_CYCLES || response.finish_reason === 'complete') {
+              addLog('Task complete')
+              return
+            }
+            cycleText = 'Did the actions succeed? What should I do next based on the screen?'
+            cycleHistory = [
+              { role: 'system', content: 'You are executing mobile actions. Verify the screen result.' },
+              ...cycleHistory.slice(-10),
+              { role: 'assistant', content: fullText },
+              { role: 'user', content: cycleText },
+            ]
+          } else {
+            addLog('No actions needed')
+          }
+        },
+        (err) => {
+          addLog(`Cycle error: ${err.message}`)
+          setStreamingText('')
+          setStreaming(false)
+        },
+        screenshot ? [{ base64: screenshot, timestamp: Date.now(), type: 'screenshot' }] : undefined,
+        { platform: Platform.OS, current_app: 'unknown' },
+      )
+    }
+  }, [agentMode, executeActions, addLog])
 
   const handleSend = useCallback(async (text: string) => {
     if (streaming) return
@@ -76,6 +142,12 @@ export default function ChatScreen() {
     const history = (chatStore.getCurrentSession()?.messages ?? [])
       .filter((m) => m.role !== 'system')
       .map((m) => ({ role: m.role, content: m.content }))
+
+    if (agentMode === 'vision' || agentMode === 'apex-predator') {
+      setStreaming(false)
+      processWithVisionLoop(text, history, null)
+      return
+    }
 
     const controller = await streamChat(
       text,
@@ -90,7 +162,10 @@ export default function ChatScreen() {
 
         if (response.actions && response.actions.length > 0) {
           await ensureInitialized()
-          executeActions(response.actions)
+          const screenshot = await executeActions(response.actions)
+          if (response.finish_reason !== 'complete' && screenshot) {
+            processWithVisionLoop('Based on the screen, did the actions work? What next?', history, screenshot)
+          }
         }
       },
       (err) => {
@@ -100,7 +175,7 @@ export default function ChatScreen() {
       },
     )
     abortRef.current = controller
-  }, [agentMode, streaming, executeActions, addLog])
+  }, [agentMode, streaming, executeActions, addLog, processWithVisionLoop])
 
   const handleVoiceToggle = useCallback(async () => {
     if (voiceService.getListeningState()) {
