@@ -9,9 +9,15 @@ android {
 
     defaultConfig {
         applicationId = "com.zyraxon.automation"
+<<<<<<< HEAD
         minSdk = 26
         targetSdk = 34
         versionCode = 1
+=======
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 2
+>>>>>>> origin/mobile-sdk-compatibility-fix
         versionName = "1.0.0"
     }
 
