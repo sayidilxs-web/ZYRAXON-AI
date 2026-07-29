@@ -1,5 +1,6 @@
 package com.zyraxon.automation
 
+import android.accessibilityservice.AccessibilityService
 import android.util.Log
 import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
@@ -24,7 +25,7 @@ import fi.iki.elonen.NanoHTTPD
  */
 
 class HttpServer(
-    port: Int,
+    private val port: Int,
     private val service: ZyraxonAccessibilityService
 ) : NanoHTTPD("0.0.0.0", port) {
 
@@ -36,9 +37,9 @@ class HttpServer(
             try {
                 start()
                 running = true
-                Log.i("ZyraxonHttp", "HTTP Server started on port $port")
+                Log.i("ZyraxonHttp", "HTTP Server started on port " + port)
             } catch (e: Exception) {
-                Log.e("ZyraxonHttp", "Failed to start: ${e.message}")
+                Log.e("ZyraxonHttp", "Failed to start: " + e.message)
             }
         }
     }
@@ -73,29 +74,29 @@ class HttpServer(
                 uri == "/type" -> handleType(session)
                 uri == "/scroll" -> handleScroll(session)
                 uri == "/go-back" -> {
-                    service.performGlobalAction(GLOBAL_ACTION_BACK)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
                     jsonResponse(mapOf("success" to true))
                 }
                 uri == "/go-home" -> {
-                    service.performGlobalAction(GLOBAL_ACTION_HOME)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
                     jsonResponse(mapOf("success" to true))
                 }
                 uri == "/go-recents" -> {
-                    service.performGlobalAction(GLOBAL_ACTION_RECENTS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
                     jsonResponse(mapOf("success" to true))
                 }
                 uri == "/notification" -> {
-                    service.performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
                     jsonResponse(mapOf("success" to true))
                 }
                 uri == "/quick-settings" -> {
-                    service.performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
                     jsonResponse(mapOf("success" to true))
                 }
                 else -> jsonResponse(mapOf("error" to "Not found"), 404)
             }
         } catch (e: Exception) {
-            Log.e("ZyraxonHttp", "Error handling $uri: ${e.message}")
+            Log.e("ZyraxonHttp", "Error handling $uri: " + e.message)
             jsonResponse(mapOf("error" to e.message), 500)
         }
 
