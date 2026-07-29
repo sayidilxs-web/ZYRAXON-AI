@@ -174,7 +174,7 @@ export default function ChatScreen() {
           setIsActive={setMobileAgentActive}
         />
       )}
-      {mobileAgentActive && logLines.length > 0 && (
+      {logLines.length > 0 && (
         <View style={styles.logPanel}>
           {logLines.slice(-3).map((line, i) => (
             <Text key={i} style={styles.logText}>{line}</Text>
