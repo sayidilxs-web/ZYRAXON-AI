@@ -5,7 +5,7 @@
 import { createSignal, type Accessor, type Setter } from "solid-js"
 
 const [previewActive, setPreviewActive] = createSignal(false)
-const DEFAULT_PREVIEW_WIDTH = 600
+const DEFAULT_PREVIEW_WIDTH = 800
 const [previewWidth, setPreviewWidth] = createSignal(DEFAULT_PREVIEW_WIDTH)
 
 export function getPreviewActive(): Accessor<boolean> {
@@ -25,5 +25,5 @@ export function getPreviewWidth(): Accessor<number> {
 }
 
 export function setPreviewWidthState(width: number): void {
-  setPreviewWidth(Math.max(360, Math.min(1200, width)))
+  setPreviewWidth(Math.max(360, Math.min(1600, width)))
 }

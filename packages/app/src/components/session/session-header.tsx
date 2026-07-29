@@ -479,20 +479,22 @@ export function SessionHeader() {
                         </Button>
                       </TooltipKeybind>
 
-                      <TooltipKeybind
-                        title="Preview"
-                        keybind={[]}
-                      >
-                        <Button
-                          variant="ghost"
-                          class="titlebar-icon w-8 h-6 p-0 box-border"
-                          onClick={togglePreview}
-                          aria-label="Toggle website preview"
-                          aria-expanded={getPreviewActive()}
+                      <Show when={false}>
+                        <TooltipKeybind
+                          title="Preview"
+                          keybind={[]}
                         >
-                          <Icon size="small" name={getPreviewActive() ? "globe" : "globe"} />
-                        </Button>
-                      </TooltipKeybind>
+                          <Button
+                            variant="ghost"
+                            class="titlebar-icon w-8 h-6 p-0 box-border"
+                            onClick={togglePreview}
+                            aria-label="Toggle website preview"
+                            aria-expanded={getPreviewActive()}
+                          >
+                            <Icon size="small" name={getPreviewActive() ? "globe" : "globe"} />
+                          </Button>
+                        </TooltipKeybind>
+                      </Show>
 
                       <TooltipKeybind
                         title={language.t("command.fileTree.toggle")}
@@ -579,23 +581,25 @@ function SessionHeaderV2Actions(props: { state: SessionHeaderV2ActionsState }) {
           />
         </TooltipV2>
       </Show>
-      <TooltipV2
-        class="shrink-0"
-        placement="bottom"
-        value="Website Preview"
-      >
-        <IconButtonV2
-          type="button"
-          variant="ghost-muted"
-          size="large"
-          class="!w-9 shrink-0"
-          state={getPreviewActive() ? "pressed" : undefined}
-          onClick={togglePreview}
-          aria-label="Toggle website preview"
-          aria-expanded={getPreviewActive()}
-          icon={<IconV2 name="globe" />}
-        />
-      </TooltipV2>
+      <Show when={false}>
+        <TooltipV2
+          class="shrink-0"
+          placement="bottom"
+          value="Website Preview"
+        >
+          <IconButtonV2
+            type="button"
+            variant="ghost-muted"
+            size="large"
+            class="!w-9 shrink-0"
+            state={getPreviewActive() ? "pressed" : undefined}
+            onClick={togglePreview}
+            aria-label="Toggle website preview"
+            aria-expanded={getPreviewActive()}
+            icon={<IconV2 name="globe" />}
+          />
+        </TooltipV2>
+      </Show>
     </div>
   )
 }

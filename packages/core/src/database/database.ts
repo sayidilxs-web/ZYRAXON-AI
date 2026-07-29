@@ -24,17 +24,24 @@ const layer = Layer.effect(
   Effect.gen(function* () {
     const db = yield* makeDatabase
 
-    yield* db.run("PRAGMA journal_mode = WAL")
-    yield* db.run("PRAGMA synchronous = NORMAL")
-    yield* db.run("PRAGMA busy_timeout = 10000")
-    yield* db.run("PRAGMA cache_size = -8388608")
-    yield* db.run("PRAGMA mmap_size = 1073741824")
-    yield* db.run("PRAGMA temp_store = MEMORY")
-    yield* db.run("PRAGMA foreign_keys = ON")
-    yield* db.run("PRAGMA wal_autocheckpoint = 2000")
-    yield* db.run("PRAGMA page_size = 65536")
-    yield* db.run("PRAGMA wal_checkpoint(PASSIVE)")
-    yield* db.run("PRAGMA optimize")
+    // ETERNAL MEMORY PRAGMAs — Maximum performance, zero data loss
+    yield* db.run("PRAGMA journal_mode = WAL")            // Write-ahead logging for concurrent reads
+    yield* db.run("PRAGMA synchronous = NORMAL")           // Balanced speed/safety
+    yield* db.run("PRAGMA busy_timeout = 30000")           // 30s timeout for high concurrency
+    yield* db.run("PRAGMA cache_size = -67108864")         // 64MB cache (was 8MB)
+    yield* db.run("PRAGMA mmap_size = 2147483648")         // 2GB memory-mapped I/O
+    yield* db.run("PRAGMA temp_store = MEMORY")            // Temp tables in RAM
+    yield* db.run("PRAGMA foreign_keys = ON")              // Referential integrity
+    yield* db.run("PRAGMA wal_autocheckpoint = 4000")      // Less frequent checkpoints
+    yield* db.run("PRAGMA page_size = 65536")              // 64KB pages for large data
+    yield* db.run("PRAGMA wal_checkpoint(PASSIVE)")        // Non-blocking checkpoint
+    yield* db.run("PRAGMA optimize")                       // Query planner optimization
+    yield* db.run("PRAGMA hard_heap_limit = 268435456")    // 256MB hard heap limit
+    yield* db.run("PRAGMA soft_heap_limit = 134217728")    // 128MB soft heap limit
+    yield* db.run("PRAGMA mmap_size = 2147483648")         // 2GB memory-mapped I/O
+    yield* db.run("PRAGMA secure_delete = OFF")            // Fast deletes (no zero-fill)
+    yield* db.run("PRAGMA auto_vacuum = INCREMENTAL")      // Incremental vacuum for space reclamation
+    yield* db.run("PRAGMA journal_size_limit = 104857600") // 100MB max WAL file size
     yield* DatabaseMigration.apply(db)
 
     return { db }

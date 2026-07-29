@@ -1,19 +1,19 @@
-// ZYRAXON Auto Screen Vision v2
-// Async, crash-proof, cross-platform screen capture
-// Automatically captures screen before EVERY response
+// ZYRAXON Auto Screen Vision v4 — SINGLE FRAME ONLY
+// 24/7 SILENT background daemon — keeps ONLY the latest frame
+// Every 3 seconds: capture new → delete old → keep only latest
+// Auto-injects into memory for ALL mode prompts
 
 import { exec } from "child_process"
 import { promisify } from "util"
-import fs from "fs/promises"
+import fs from "fs"
 import path from "path"
 import os from "os"
 import { Global } from "@opencode-ai/core/global"
 
 const execAsync = promisify(exec)
 const SCREENSHOT_DIR = path.join(Global.Path.data, "screen_vision")
-const AUTO_CAPTURE_FILE = path.join(SCREENSHOT_DIR, "latest_capture.json")
-const HISTORY_DIR = path.join(SCREENSHOT_DIR, "history")
-const MAX_HISTORY = 50
+const LATEST_JSON = path.join(SCREENSHOT_DIR, "latest.json")
+const LATEST_IMAGE = path.join(SCREENSHOT_DIR, "latest.png")
 
 export interface ScreenCapture {
   id: string
@@ -25,279 +25,126 @@ export interface ScreenCapture {
   height?: number
   method: string
   error?: string
+  buffer?: Buffer
 }
 
-let lastCaptureTime = 0
-const MIN_CAPTURE_INTERVAL = 2000
+let daemonInterval: NodeJS.Timeout | null = null
+let daemonRunning = false
+let latestCapture: ScreenCapture | null = null
+let latestBuffer: Buffer | null = null
+const CAPTURE_INTERVAL_MS = 3000
 
-async function ensureDir() {
-  try {
-    await fs.access(SCREENSHOT_DIR)
-  } catch {
-    await fs.mkdir(SCREENSHOT_DIR, { recursive: true })
-  }
-  try {
-    await fs.access(HISTORY_DIR)
-  } catch {
-    await fs.mkdir(HISTORY_DIR, { recursive: true })
-  }
-}
-
-async function runCommand(cmd: string, timeoutMs: number = 10000): Promise<{ stdout: string; stderr: string }> {
-  return execAsync(cmd, { timeout: timeoutMs, windowsHide: true })
-}
-
-async function captureWindows(): Promise<{ filepath: string; method: string }> {
-  await ensureDir()
-  const filename = `screen_${Date.now()}.png`
-  const filepath = path.join(SCREENSHOT_DIR, filename)
-
-  const psScript = `
-    Add-Type -AssemblyName System.Windows.Forms
-    Add-Type -AssemblyName System.Drawing
-    try {
-      $screens = [System.Windows.Forms.Screen]::AllScreens
-      $totalWidth = 0
-      $totalHeight = 0
-      foreach ($screen in $screens) {
-        if ($screen.Bounds.Right -gt $totalWidth) { $totalWidth = $screen.Bounds.Right }
-        if ($screen.Bounds.Bottom -gt $totalHeight) { $totalHeight = $screen.Bounds.Bottom }
-      }
-      $bitmap = New-Object System.Drawing.Bitmap($totalWidth, $totalHeight)
-      $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-      $graphics.CopyFromScreen(0, 0, 0, [System.Drawing.Size]::new($totalWidth, $totalHeight))
-      $bitmap.Save('${filepath.replace(/\\/g, "\\\\")}')
-      $graphics.Dispose()
-      $bitmap.Dispose()
-      Write-Output "OK"
-    } catch {
-      Write-Error $_.Exception.Message
-      exit 1
-    }
-  `
-
-  const tempScript = path.join(os.tmpdir(), `zyraxon_capture_${Date.now()}.ps1`)
-  await fs.writeFile(tempScript, psScript, "utf-8")
-
-  try {
-    await runCommand(`powershell -ExecutionPolicy Bypass -NoProfile -File "${tempScript}"`, 15000)
-    return { filepath, method: "powershell" }
-  } finally {
-    await fs.unlink(tempScript).catch(() => {})
-  }
-}
-
-async function captureMacOS(): Promise<{ filepath: string; method: string }> {
-  await ensureDir()
-  const filename = `screen_${Date.now()}.png`
-  const filepath = path.join(SCREENSHOT_DIR, filename)
-  await runCommand(`screencapture -x -C "${filepath}"`, 10000)
-  return { filepath, method: "screencapture" }
-}
-
-async function captureLinux(): Promise<{ filepath: string; method: string }> {
-  await ensureDir()
-  const filename = `screen_${Date.now()}.png`
-  const filepath = path.join(SCREENSHOT_DIR, filename)
-
-  const methods = [
-    { cmd: `gnome-screenshot -f "${filepath}"`, name: "gnome-screenshot" },
-    { cmd: `scrot "${filepath}"`, name: "scrot" },
-    { cmd: `import -window root "${filepath}"`, name: "imagemagick" },
-    { cmd: `maim "${filepath}"`, name: "maim" },
-    { cmd: `xfce4-screenshooter -f -s "${filepath}"`, name: "xfce4" },
-    { cmd: `flameshot screen -p "${path.dirname(filepath)}" -n "${filename}"`, name: "flameshot" },
-  ]
-
-  for (const method of methods) {
-    try {
-      await runCommand(method.cmd, 10000)
-      try {
-        await fs.access(filepath)
-        return { filepath, method: method.name }
-      } catch {
-        continue
-      }
-    } catch {
-      continue
-    }
-  }
-
-  throw new Error("No screen capture tool available on Linux. Install scrot, gnome-screenshot, or maim.")
+function ensureDir() {
+  try { fs.accessSync(SCREENSHOT_DIR) } catch { fs.mkdirSync(SCREENSHOT_DIR, { recursive: true }) }
 }
 
 async function captureScreen(): Promise<ScreenCapture> {
-  await ensureDir()
+  ensureDir()
   const platform = process.platform
-  let result: { filepath: string; method: string }
-
-  if (platform === "win32") {
-    result = await captureWindows()
-  } else if (platform === "darwin") {
-    result = await captureMacOS()
-  } else {
-    result = await captureLinux()
-  }
-
-  const stats = await fs.stat(result.filepath)
-
-  const capture: ScreenCapture = {
-    id: `cap_${Date.now()}`,
-    timestamp: Date.now(),
-    filepath: result.filepath,
-    platform,
-    size: stats.size,
-    method: result.method,
-  }
-
-  await fs.writeFile(AUTO_CAPTURE_FILE, JSON.stringify(capture, null, 2))
-
-  const historyPath = path.join(HISTORY_DIR, `${capture.id}.json`)
-  await fs.writeFile(historyPath, JSON.stringify(capture, null, 2))
+  const filepath = LATEST_IMAGE
+  let method = "none"
+  let w = 1920, h = 1080
 
   try {
-    const historyFiles = await fs.readdir(HISTORY_DIR)
-    const jsonFiles = historyFiles
-      .filter(f => f.endsWith(".json"))
-      .sort()
-    while (jsonFiles.length > MAX_HISTORY) {
-      const oldest = jsonFiles.shift()!
-      await fs.unlink(path.join(HISTORY_DIR, oldest)).catch(() => {})
+    if (platform === "win32") {
+      const psScript = `
+        Add-Type -AssemblyName System.Windows.Forms
+        Add-Type -AssemblyName System.Drawing
+        $screens = [System.Windows.Forms.Screen]::AllScreens
+        $totalW = 0; $totalH = 0
+        foreach ($s in $screens) {
+          if ($s.Bounds.Right -gt $totalW) { $totalW = $s.Bounds.Right }
+          if ($s.Bounds.Bottom -gt $totalH) { $totalH = $s.Bounds.Bottom }
+        }
+        $bmp = New-Object System.Drawing.Bitmap($totalW, $totalH)
+        $g = [System.Drawing.Graphics]::FromImage($bmp)
+        $g.CopyFromScreen(0, 0, 0, 0, [System.Drawing.Size]::new($totalW, $totalH))
+        $bmp.Save('${filepath.replace(/\\/g, "\\\\")}')
+        $g.Dispose(); $bmp.Dispose()
+        Write-Output "$totalW|$totalH"
+      `
+      const tmp = path.join(os.tmpdir(), `zyx_cap_${Date.now()}.ps1`)
+      fs.writeFileSync(tmp, psScript, "utf-8")
+      const { stdout } = await execAsync(`powershell -ExecutionPolicy Bypass -NoProfile -File "${tmp}"`, { timeout: 15000 })
+      fs.unlinkSync(tmp)
+      const dims = stdout.trim().split("|").map(Number)
+      if (dims.length === 2 && dims[0] > 0) { w = dims[0]; h = dims[1] }
+      method = "powershell"
+    } else if (platform === "darwin") {
+      await execAsync(`screencapture -x -t jpg "${filepath}"`, { timeout: 10000 })
+      method = "screencapture"
+    } else {
+      const cmds = [`gnome-screenshot -f "${filepath}"`, `scrot "${filepath}"`, `import -window root "${filepath}"`]
+      for (const cmd of cmds) {
+        try { await execAsync(cmd, { timeout: 10000 }); fs.accessSync(filepath); method = cmd.split(" ")[0]; break } catch { continue }
+      }
+      if (!method) throw new Error("No capture tool")
     }
-  } catch {}
-
-  return capture
-}
-
-export async function autoCaptureScreen(): Promise<ScreenCapture | null> {
-  const now = Date.now()
-
-  if (now - lastCaptureTime < MIN_CAPTURE_INTERVAL) {
-    try {
-      const data = await fs.readFile(AUTO_CAPTURE_FILE, "utf-8")
-      return JSON.parse(data) as ScreenCapture
-    } catch {
-      return null
-    }
-  }
-
-  try {
-    const capture = await captureScreen()
-    lastCaptureTime = now
-    return capture
+    const stats = fs.statSync(filepath)
+    return { id: `cap_${Date.now()}`, timestamp: Date.now(), filepath, platform, size: stats.size, width: w, height: h, method }
   } catch (e) {
-    const errorCapture: ScreenCapture = {
-      id: `cap_error_${Date.now()}`,
-      timestamp: Date.now(),
-      filepath: "",
-      platform: process.platform,
-      size: 0,
-      method: "none",
-      error: e instanceof Error ? e.message : String(e),
-    }
-    return errorCapture
+    return { id: `cap_err_${Date.now()}`, timestamp: Date.now(), filepath: "", platform, size: 0, method: "none", error: e instanceof Error ? e.message : String(e) }
   }
 }
 
-export async function getLatestCapture(): Promise<ScreenCapture | null> {
-  try {
-    const data = await fs.readFile(AUTO_CAPTURE_FILE, "utf-8")
-    return JSON.parse(data) as ScreenCapture
-  } catch {
-    return null
+function startAutoCapture(intervalMs: number = CAPTURE_INTERVAL_MS): void {
+  if (daemonRunning) return
+  daemonRunning = true
+  ensureDir()
+  const tick = async () => {
+    const cap = await captureScreen()
+    if (cap.filepath && cap.size > 1000) {
+      try { latestBuffer = fs.readFileSync(cap.filepath) } catch {}
+    }
+    latestCapture = cap
+    fs.writeFileSync(LATEST_JSON, JSON.stringify({ ...cap, buffer: undefined }))
   }
+  tick()
+  daemonInterval = setInterval(tick, intervalMs)
 }
 
-export async function getCaptureHistory(limit: number = 10): Promise<ScreenCapture[]> {
-  try {
-    await ensureDir()
-    const files = await fs.readdir(HISTORY_DIR)
-    const captures: ScreenCapture[] = []
+function stopAutoCapture(): void {
+  if (daemonInterval) { clearInterval(daemonInterval); daemonInterval = null }
+  daemonRunning = false
+}
 
-    const jsonFiles = files
-      .filter(f => f.endsWith(".json"))
-      .sort()
-      .reverse()
-      .slice(0, limit)
+function getLatestCapture(): { capture: ScreenCapture | null; buffer: Buffer | null } {
+  return { capture: latestCapture, buffer: latestBuffer }
+}
 
-    for (const file of jsonFiles) {
-      try {
-        const data = await fs.readFile(path.join(HISTORY_DIR, file), "utf-8")
-        captures.push(JSON.parse(data) as ScreenCapture)
-      } catch {
-        continue
-      }
+function captureNowSync(): ScreenCapture | null {
+  captureScreen().then(c => {
+    if (c.filepath && c.size > 1000) {
+      try { latestBuffer = fs.readFileSync(c.filepath) } catch {}
     }
-
-    return captures
-  } catch {
-    return []
-  }
+    latestCapture = c
+    fs.writeFileSync(LATEST_JSON, JSON.stringify({ ...c, buffer: undefined }))
+  })
+  return latestCapture
 }
 
-export async function describeScreen(): Promise<string> {
-  const capture = await autoCaptureScreen()
-  if (!capture) return "Unable to capture screen"
-  if (capture.error) return `Screen capture failed: ${capture.error}`
-
-  return [
-    `Screen captured at ${new Date(capture.timestamp).toLocaleTimeString()}`,
-    `Platform: ${capture.platform} | Method: ${capture.method}`,
-    `File: ${capture.filepath}`,
-    `Size: ${(capture.size / 1024).toFixed(1)}KB`,
-    "",
-    "The screen is now visible to you.",
-    "You can see what the user sees.",
-  ].join("\n")
+function describeScreen(): string {
+  const cap = latestCapture
+  if (!cap) return "Auto vision active — waiting for first capture (~3s)"
+  if (cap.error) return `Auto vision: ${cap.error}`
+  return `Latest screen: ${new Date(cap.timestamp).toLocaleTimeString()} | ${cap.platform} | ${(cap.size / 1024).toFixed(1)}KB | ${cap.width}x${cap.height}`
 }
 
-export async function cleanupOldCaptures(daysOld: number = 7): Promise<number> {
-  await ensureDir()
-  const cutoff = Date.now() - (daysOld * 86400000)
-  let removed = 0
+function isDaemonRunning(): boolean { return daemonRunning }
 
-  try {
-    const files = await fs.readdir(SCREENSHOT_DIR)
-    for (const file of files) {
-      if (!file.startsWith("screen_") || !file.endsWith(".png")) continue
-      const filepath = path.join(SCREENSHOT_DIR, file)
-      try {
-        const stats = await fs.stat(filepath)
-        if (stats.mtimeMs < cutoff) {
-          await fs.unlink(filepath)
-          removed++
-        }
-      } catch {
-        continue
-      }
-    }
-  } catch {}
-
-  try {
-    const historyFiles = await fs.readdir(HISTORY_DIR)
-    for (const file of historyFiles) {
-      if (!file.endsWith(".json")) continue
-      const filepath = path.join(HISTORY_DIR, file)
-      try {
-        const stats = await fs.stat(filepath)
-        if (stats.mtimeMs < cutoff) {
-          await fs.unlink(filepath)
-          removed++
-        }
-      } catch {
-        continue
-      }
-    }
-  } catch {}
-
-  return removed
+function getDaemonStatus(): { running: boolean; interval: number; latest: string | null; size: number } {
+  return { running: daemonRunning, interval: CAPTURE_INTERVAL_MS, latest: latestCapture?.timestamp ? new Date(latestCapture.timestamp).toISOString() : null, size: latestCapture?.size || 0 }
 }
+
+// Auto-start on module load
+startAutoCapture()
 
 export const autoScreenVision = {
-  autoCaptureScreen,
+  captureNowSync,
   getLatestCapture,
-  getCaptureHistory,
   describeScreen,
-  captureScreen,
-  cleanupOldCaptures,
+  isDaemonRunning,
+  getDaemonStatus,
+  startAutoCapture,
+  stopAutoCapture,
 }
