@@ -1,7 +1,7 @@
 import type { AgentMode } from '../types'
 
-const DEFAULT_SERVER = 'http://localhost:8080'
-const DEFAULT_AGENT_SERVER = 'http://localhost:3001'
+const DEFAULT_SERVER = 'https://zyraxon-mobile-agent.onrender.com'
+const DEFAULT_AGENT_SERVER = 'https://zyraxon-mobile-agent.onrender.com'
 
 let serverUrl = DEFAULT_SERVER
 let agentServerUrl = DEFAULT_AGENT_SERVER
@@ -51,7 +51,7 @@ export async function streamChat(
   const controller = new AbortController()
 
   try {
-    const res = await fetch(`${serverUrl}/api/chat`, {
+    const res = await fetch(`${agentServerUrl}/api/mobile/agent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: content, history, mode: agentMode }),
@@ -63,25 +63,10 @@ export async function streamChat(
       return controller
     }
 
-    const reader = res.body?.getReader()
-    if (!reader) {
-      onError(new Error('No response body'))
-      return controller
-    }
-
-    const decoder = new TextDecoder()
-    function pump(): Promise<void> {
-      return reader!.read().then(({ done, value }) => {
-        if (done) {
-          onDone()
-          return
-        }
-        const text = decoder.decode(value, { stream: true })
-        onToken(text)
-        return pump()
-      })
-    }
-    pump().catch(onError)
+    const data = await res.json()
+    const text = data.text || '(no response)'
+    onToken(text)
+    onDone()
   } catch (err: any) {
     if (err.name !== 'AbortError') {
       onError(err instanceof Error ? err : new Error(String(err)))
