@@ -138,6 +138,37 @@ const table = sqliteTable("session", {
 })
 ```
 
+## ULTRA-15 OMNI-KERNEL System
+
+This project has a 5-layer OMNI-KERNEL at `packages/core/src/omni/`:
+
+1. **Memory Graph & Metric Healing** (`memory-graph.ts`) — Tracks tool success rates, builds semantic graph, auto-prunes low-value patterns. When a pattern hits 95%+ success rate, it becomes a cached template.
+
+2. **Shadow Clone & Silent Dry-Run** (`shadow-clone.ts`) — Before editing any file, clones workspace to `.zyraxon-shadow/`, runs compilation/tests, only applies verified changes to real workspace.
+
+3. **Cognitive Vision & Predictive Pre-fetch** (`vision-context.ts`) — Merges screen vision frames with terminal activity. Pre-fetches relevant code from SQLite before user submits prompt.
+
+4. **Secret Redaction & Zero-Trust** (`secret-redact.ts`) — Strips all API keys, tokens, passwords from context before sending to external LLMs. Regex + env var + contextual scanning.
+
+5. **ULTRA-15 Kernels** (`kernel/*.ts`) — 15 specialized mechanism modules:
+   - `01-multi-file-composer` — 10+ file parallel edits
+   - `02-terminal-autonomy` — Auto-test + auto-fix
+   - `03-background-loop` — Parallel sub-agent spawning
+   - `04-behavior-cascade` — User flow-state detection
+   - `05-git-pair` — Auto-commit + auto-rollback
+   - `06-sandbox-runtime` — Isolated container execution
+   - `07-idea-to-deploy` — Full project generation
+   - `08-cost-router` — 25+ provider auto-routing
+   - `09-live-observability` — Crash capture + analysis
+   - `10-knowledge-graph` — Hybrid pattern memory
+   - `11-security-scanner` — OWASP Top 10 scanning
+   - `12-silent-precompile` — Background syntax verification
+   - `13-visual-context-sync` — Screen error detection
+   - `14-self-evolving-prompt` — Dynamic prompt rules
+   - `15-zero-trust-token` — Credential scanning + stripping
+
+Always load the OmniKernel at startup. Before every tool call, run `processBeforeToolCall`. After every tool result, run `processAfterToolCall`. Before every file edit, run `processBeforeFileEdit`.
+
 ## Testing
 
 - Avoid mocks as much as possible, you shouldn't be using globalThis.\* at all unless it's the only option.
