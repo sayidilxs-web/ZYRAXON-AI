@@ -1,121 +1,67 @@
-import type { AgentMode, Message, Session } from '../types'
+import type { Session, AgentMode, Message } from '../types'
 
-const STORAGE_KEY = 'zyraxon_sessions'
+class ChatStore {
+  private sessions: Map<string, Session> = new Map()
+  private currentSessionId: string | null = null
+  private listeners: Set<() => void> = new Set()
 
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
-}
-
-function loadSessions(): Session[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
   }
-}
 
-function saveSessions(sessions: Session[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
-  } catch {}
-}
-
-function createNewSession(agentMode: AgentMode): Session {
-  return {
-    id: generateId(),
-    title: 'New Chat',
-    messages: [],
-    agentMode,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+  private notify() {
+    this.listeners.forEach(listener => listener())
   }
-}
-
-let sessions = loadSessions()
-let currentSessionId: string | null = sessions[0]?.id ?? null
-let listeners: Array<() => void> = []
-
-function notify() {
-  for (const fn of listeners) fn()
-}
-
-export const chatStore = {
-  getSessions(): Session[] {
-    return sessions
-  },
-
-  getCurrentSession(): Session | null {
-    return sessions.find((s) => s.id === currentSessionId) ?? null
-  },
-
-  getCurrentSessionId(): string | null {
-    return currentSessionId
-  },
-
-  setCurrentSession(id: string) {
-    currentSessionId = id
-    notify()
-  },
 
   createSession(agentMode: AgentMode = 'general'): Session {
-    const session = createNewSession(agentMode)
-    sessions = [session, ...sessions]
-    currentSessionId = session.id
-    saveSessions(sessions)
-    notify()
+    const id = `session-${Date.now()}`
+    const session: Session = {
+      id,
+      title: 'New Chat',
+      agentMode,
+      messages: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+    this.sessions.set(id, session)
+    this.currentSessionId = id
+    this.notify()
     return session
-  },
+  }
 
-  addMessage(content: string, role: Message['role'], agentMode?: AgentMode) {
-    let session = sessions.find((s) => s.id === currentSessionId)
-    if (!session) {
-      session = createNewSession(agentMode ?? 'general')
-      sessions.unshift(session)
-      currentSessionId = session.id
-    } else if (agentMode) {
-      session.agentMode = agentMode
-    }
-    const message: Message = {
-      id: generateId(),
-      role,
-      content,
-      timestamp: Date.now(),
-    }
-    session.messages.push(message)
-    session.updatedAt = Date.now()
-    if (session.title === 'New Chat' && role === 'user') {
-      session.title = content.slice(0, 50) + (content.length > 50 ? '...' : '')
-    }
-    saveSessions(sessions)
-    notify()
-    return message
-  },
+  getCurrentSession(): Session | null {
+    if (!this.currentSessionId) return null
+    return this.sessions.get(this.currentSessionId) || null
+  }
 
-  clearCurrentSession() {
-    const session = sessions.find((s) => s.id === currentSessionId)
+  getSessions(): Session[] {
+    return Array.from(this.sessions.values())
+  }
+
+  addMessage(sessionId: string, message: Message): void {
+    const session = this.sessions.get(sessionId)
     if (session) {
-      session.messages = []
-      session.title = 'New Chat'
+      session.messages.push(message)
       session.updatedAt = Date.now()
-      saveSessions(sessions)
-      notify()
+      this.notify()
     }
-  },
+  }
 
-  deleteSession(id: string) {
-    sessions = sessions.filter((s) => s.id !== id)
-    if (currentSessionId === id) {
-      currentSessionId = sessions[0]?.id ?? null
+  setCurrentSession(sessionId: string): void {
+    if (this.sessions.has(sessionId)) {
+      this.currentSessionId = sessionId
+      this.notify()
     }
-    saveSessions(sessions)
-    notify()
-  },
+  }
 
-  subscribe(fn: () => void): () => void {
-    listeners.push(fn)
-    return () => {
-      listeners = listeners.filter((f) => f !== fn)
+  updateSession(sessionId: string, updates: Partial<Session>): void {
+    const session = this.sessions.get(sessionId)
+    if (session) {
+      Object.assign(session, updates, { updatedAt: Date.now() })
+      this.notify()
     }
-  },
+  }
 }
+
+export const chatStore = new ChatStore()

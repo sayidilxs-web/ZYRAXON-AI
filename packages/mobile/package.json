@@ -1,44 +1,39 @@
 {
-  "name": "@zyraxon-ai/mobile",
-  "version": "1.0.0",
+  "name": "zyraxon-ai-mobile",
+  "version": "2.0.0",
   "private": true,
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "npx expo lint"
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android:debug": "cd android && ./gradlew assembleDebug",
+    "lint": "expo lint"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.0",
-    "@react-navigation/bottom-tabs": "^7.0.0",
-    "@react-navigation/native": "^7.0.0",
-    "babel-preset-expo": "~12.0.0",
     "expo": "~52.0.0",
-    "expo-asset": "~11.0.5",
-    "expo-clipboard": "~7.0.0",
-    "expo-constants": "~17.0.0",
-    "expo-file-system": "~18.0.0",
-    "expo-linking": "~7.0.0",
-    "expo-media-library": "~17.0.0",
+    "expo-modules-core": "~2.0.0",
     "expo-modules-autolinking": "~2.0.0",
-    "expo-modules-core": "~2.2.0",
-    "expo-router": "~4.0.0",
-    "expo-screen-capture": "~7.0.0",
-    "expo-speech": "~13.0.0",
     "expo-status-bar": "~2.0.0",
+    "expo-router": "~4.0.0",
+    "expo-linking": "~7.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-font": "~13.0.0",
+    "expo-file-system": "~18.0.0",
+    "expo-asset": "~11.0.0",
+    "expo-keep-awake": "~14.0.0",
     "react": "18.3.1",
-    "react-native": "0.76.0",
-    "react-native-gesture-handler": "~2.20.0",
-    "react-native-markdown-display": "^7.0.0",
+    "react-native": "0.76.9",
+    "react-native-safe-area-context": "~4.14.0",
+    "react-native-screens": "~4.4.0",
     "react-native-reanimated": "~3.16.0",
-    "react-native-safe-area-context": "4.14.0",
-    "react-native-screens": "~4.4.0"
+    "@react-navigation/native-stack": "~7.3.0",
+    "@react-navigation/native": "~7.3.0",
+    "react-native-gesture-handler": "~2.20.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
-    "@types/react": "~18.3.0",
-    "typescript": "~5.3.3"
+    "@babel/core": "^7.25.2"
   }
 }

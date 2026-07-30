@@ -1,53 +1,36 @@
-import { useState } from 'react'
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import React from 'react'
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { theme } from '../types/theme'
 
 interface ChatInputProps {
-  onSend: (text: string) => void
-  onVoicePress?: () => void
-  disabled?: boolean
+  value: string
+  onChangeText: (text: string) => void
+  onSend: () => void
+  onVoice?: () => void
   placeholder?: string
 }
 
-export function ChatInput({ onSend, onVoicePress, disabled, placeholder }: ChatInputProps) {
-  const [text, setText] = useState('')
-
-  function handleSend() {
-    const trimmed = text.trim()
-    if (!trimmed || disabled) return
-    onSend(trimmed)
-    setText('')
-  }
-
+export function ChatInput({ value, onChangeText, onSend, onVoice, placeholder = 'Type a message...' }: ChatInputProps) {
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.container}>
-        {onVoicePress && (
-          <TouchableOpacity onPress={onVoicePress} style={styles.voiceBtn}>
-            <Text style={styles.voiceIcon}>🎤</Text>
-          </TouchableOpacity>
-        )}
-        <TextInput
-          style={styles.input}
-          value={text}
-          onChangeText={setText}
-          placeholder={placeholder ?? 'Type a message...'}
-          placeholderTextColor={theme.textMuted}
-          multiline
-          maxLength={4000}
-          editable={!disabled}
-          onSubmitEditing={handleSend}
-          blurOnSubmit
-        />
-        <TouchableOpacity
-          onPress={handleSend}
-          style={[styles.sendBtn, !text.trim() && styles.sendBtnDisabled]}
-          disabled={!text.trim() || disabled}
-        >
-          <Text style={styles.sendIcon}>➤</Text>
+    <View style={styles.container}>
+      {onVoice && (
+        <TouchableOpacity style={styles.voiceButton} onPress={onVoice}>
+          <Text style={styles.voiceIcon}>🎤</Text>
         </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      )}
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={theme.textMuted}
+        multiline
+        maxLength={5000}
+      />
+      <TouchableOpacity style={[styles.sendButton, !value && styles.sendButtonDisabled]} onPress={onSend} disabled={!value}>
+        <Text style={styles.sendIcon}>➤</Text>
+      </TouchableOpacity>
+    </View>
   )
 }
 
@@ -55,46 +38,43 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    padding: 8,
     backgroundColor: theme.surface,
     borderTopWidth: 1,
     borderTopColor: theme.border,
   },
   input: {
     flex: 1,
-    backgroundColor: theme.inputBg,
+    minHeight: 40,
+    maxHeight: 100,
+    backgroundColor: theme.bg,
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 15,
+    paddingVertical: 8,
     color: theme.text,
-    maxHeight: 120,
-    borderWidth: 1,
-    borderColor: theme.inputBorder,
+    fontSize: 16,
   },
-  voiceBtn: {
-    padding: 10,
-    marginRight: 4,
-  },
-  voiceIcon: {
-    fontSize: 20,
-  },
-  sendBtn: {
-    backgroundColor: theme.primary,
+  sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'center',
+    backgroundColor: theme.primary,
     justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 8,
   },
-  sendBtnDisabled: {
-    backgroundColor: theme.textMuted,
-    opacity: 0.4,
+  sendButtonDisabled: {
+    backgroundColor: theme.border,
   },
-  sendIcon: {
-    fontSize: 16,
-    color: '#fff',
+  sendIcon: { fontSize: 18, color: '#fff' },
+  voiceButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
+  voiceIcon: { fontSize: 18 },
 })

@@ -1,21 +1,18 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
-const { getDefaultConfig: getExpoDefaultConfig } = require('expo/metro-config');
 
 const projectRoot = __dirname;
 
-// Create a custom metro config
-const config = {
-  ...getExpoDefaultConfig(projectRoot),
-  watchFolders: [projectRoot],
-  resolver: {
-    nodeModulesPaths: [path.resolve(projectRoot, 'node_modules')],
-    extraNodeModules: {
-      // Ensure expo resolves from mobile package
-      'expo': path.resolve(projectRoot, 'node_modules', 'expo'),
-      'expo-router': path.resolve(projectRoot, 'node_modules', 'expo-router'),
-    },
-  },
-};
+const config = getDefaultConfig(projectRoot);
+
+// For monorepo setup with bun workspaces, ensure modules resolve correctly
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+];
+
+// Force resolution to mobile package's node_modules
+config.watchFolders = [
+  projectRoot,
+];
 
 module.exports = config;
