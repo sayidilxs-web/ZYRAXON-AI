@@ -9,17 +9,17 @@
 9        android:targetSdkVersion="34" />
 10
 11    <uses-permission android:name="android.permission.INTERNET" />
-11-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:4:5-67
-11-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:4:22-64
+11-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:4:5-67
+11-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:4:22-64
 12    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-12-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:5:5-78
-12-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:5:22-75
+12-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:5:5-78
+12-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:5:22-75
 13    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-13-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:6:5-77
-13-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:6:22-74
+13-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:6:5-77
+13-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:6:22-74
 14    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-14-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:7:5-77
-14-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:7:22-74
+14-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:7:5-77
+14-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:7:22-74
 15
 16    <permission
 16-->[androidx.core:core:1.12.0] /home/openhands/.gradle/caches/transforms-3/0d4ffc60e85a7c7f9fbeb27599893adc/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
@@ -33,60 +33,60 @@
 20-->[androidx.core:core:1.12.0] /home/openhands/.gradle/caches/transforms-3/0d4ffc60e85a7c7f9fbeb27599893adc/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
 21
 22    <application
-22-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:9:5-37:19
+22-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:9:5-37:19
 23        android:allowBackup="true"
-23-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:10:9-35
+23-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:10:9-35
 24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 24-->[androidx.core:core:1.12.0] /home/openhands/.gradle/caches/transforms-3/0d4ffc60e85a7c7f9fbeb27599893adc/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 25        android:debuggable="true"
 26        android:extractNativeLibs="true"
 27        android:label="ZYRAXON Automation"
-27-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:11:9-43
+27-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:11:9-43
 28        android:supportsRtl="true"
-28-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:12:9-35
+28-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:12:9-35
 29        android:theme="@style/Theme.ZyraxonAutomation" >
-29-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:13:9-55
+29-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:13:9-55
 30        <activity
-30-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:15:9-23:20
+30-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:15:9-23:20
 31            android:name="com.zyraxon.automation.MainActivity"
-31-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:16:13-41
+31-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:16:13-41
 32            android:exported="true"
-32-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:17:13-36
+32-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:17:13-36
 33            android:theme="@style/Theme.ZyraxonAutomation" >
-33-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:18:13-59
+33-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:18:13-59
 34            <intent-filter>
-34-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:19:13-22:29
+34-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:19:13-22:29
 35                <action android:name="android.intent.action.MAIN" />
-35-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:20:17-69
-35-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:20:25-66
+35-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:20:17-69
+35-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:20:25-66
 36
 37                <category android:name="android.intent.category.LAUNCHER" />
-37-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:21:17-77
-37-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:21:27-74
+37-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:21:17-77
+37-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:21:27-74
 38            </intent-filter>
 39        </activity>
 40
 41        <service
-41-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:25:9-35:19
+41-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:25:9-35:19
 42            android:name="com.zyraxon.automation.ZyraxonAccessibilityService"
-42-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:26:13-56
+42-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:26:13-56
 43            android:exported="true"
-43-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:27:13-36
+43-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:27:13-36
 44            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
-44-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:28:13-79
+44-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:28:13-79
 45            <intent-filter>
-45-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:29:13-31:29
+45-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:29:13-31:29
 46                <action android:name="android.accessibilityservice.AccessibilityService" />
-46-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:30:17-92
-46-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:30:25-89
+46-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:30:17-92
+46-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:30:25-89
 47            </intent-filter>
 48
 49            <meta-data
-49-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:32:13-34:72
+49-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:32:13-34:72
 50                android:name="android.accessibilityservice"
-50-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:33:17-60
+50-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:33:17-60
 51                android:resource="@xml/accessibility_service_config" />
-51-->/workspace/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:34:17-69
+51-->/workspace/project/ZYRAXON-AI/packages/mobile/android-automation/app/src/main/AndroidManifest.xml:34:17-69
 52        </service>
 53
 54        <provider
