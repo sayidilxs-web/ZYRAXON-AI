@@ -1,0 +1,21 @@
+{
+    "id":  "plugin-001",
+    "category":  "plugins",
+    "rating":  4.5,
+    "featured":  true,
+    "downloads":  150,
+    "tags":  [
+                 "themes",
+                 "ui",
+                 "customization"
+             ],
+    "name":  "ZYRAXON Theme Engine",
+    "type":  "plugin",
+    "description":  "Custom themes and color schemes for ZYRAXON AI",
+    "version":  "1.0.0",
+    "createdAt":  "2026-07-01T00:00:00Z",
+    "author":  "zyraxon",
+    "authorId":  "user-zyraxon",
+    "authorAvatar":  "",
+    "updatedAt":  "2026-07-15T00:00:00Z"
+}
