@@ -1,0 +1,21 @@
+{
+    "id":  "template-001",
+    "category":  "website-templates",
+    "rating":  4.7,
+    "featured":  true,
+    "downloads":  420,
+    "tags":  [
+                 "react",
+                 "dashboard",
+                 "tailwind"
+             ],
+    "name":  "React Dashboard Starter",
+    "type":  "template",
+    "description":  "Full-featured admin dashboard with React, Tailwind, and shadcn/ui",
+    "version":  "1.0.0",
+    "createdAt":  "2026-04-15T00:00:00Z",
+    "author":  "zyraxon",
+    "authorId":  "user-zyraxon",
+    "authorAvatar":  "",
+    "updatedAt":  "2026-07-22T00:00:00Z"
+}
