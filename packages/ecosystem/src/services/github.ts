@@ -6,20 +6,34 @@ const GITHUB_API = "https://api.github.com"
 
 function getHeaders() {
   const auth = getAuthState()
-  return {
-    Authorization: `Bearer ${auth?.token || ""}`,
+  const headers: Record<string, string> = {
     Accept: "application/vnd.github.v3+json",
   }
+  if (auth?.token) {
+    headers.Authorization = `Bearer ${auth.token}`
+  }
+  return headers
 }
 
-async function fetchFromGitHub(path: string): Promise<any> {
-  const response = await fetch(`${GITHUB_API}/repos/${GITHUB_REPO}/contents${path}`, { headers: getHeaders() })
-  if (!response.ok) throw new Error(`GitHub API error: ${response.status}`)
-  const data = await response.json()
-  if (data.content) {
-    return JSON.parse(atob(data.content.replace(/\n/g, "")))
+async function fetchFromGitHub(path: string, retries = 3): Promise<any> {
+  let lastError: Error | null = null
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(`${GITHUB_API}/repos/${GITHUB_REPO}/contents${path}`, { headers: getHeaders() })
+      if (!response.ok) throw new Error(`GitHub API error: ${response.status}`)
+      const data = await response.json()
+      if (data.content) {
+        return JSON.parse(atob(data.content.replace(/\n/g, "")))
+      }
+      return data
+    } catch (err) {
+      lastError = err as Error
+      if (attempt < retries - 1) {
+        await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 500))
+      }
+    }
   }
-  return data
+  throw lastError
 }
 
 async function getFileSha(path: string): Promise<string | null> {
@@ -66,6 +80,25 @@ async function fetchItemsFromPath(path: string): Promise<EcosystemItem[]> {
 let cachedItems: EcosystemItem[] | null = null
 let cacheTime = 0
 const CACHE_TTL = 30000
+const LOCALSTORAGE_KEY = "zyraxon_ecosystem_cache"
+
+function loadLocalCache(): EcosystemItem[] | null {
+  try {
+    const raw = localStorage.getItem(LOCALSTORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed.items) && Date.now() - parsed.time < 300000) {
+      return parsed.items
+    }
+  } catch {}
+  return null
+}
+
+function saveLocalCache(items: EcosystemItem[]) {
+  try {
+    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify({ items, time: Date.now() }))
+  } catch {}
+}
 
 export async function getAllItems(): Promise<EcosystemItem[]> {
   const now = Date.now()
@@ -81,7 +114,8 @@ export async function getAllItems(): Promise<EcosystemItem[]> {
   const items = [...plugins, ...bots, ...templates, ...published]
   cachedItems = items
   cacheTime = now
-  return items
+  if (items.length > 0) saveLocalCache(items)
+  return items.length > 0 ? items : (loadLocalCache() ?? items)
 }
 
 export async function getItemsByCategory(category: string): Promise<EcosystemItem[]> {

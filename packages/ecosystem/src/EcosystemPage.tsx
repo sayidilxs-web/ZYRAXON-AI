@@ -300,7 +300,7 @@ export const EcosystemPage: Component<{ initialItemId?: string }> = (props) => {
             <div class="grid grid-cols-4 gap-4 mb-8">
               <Show when={stats()} fallback={<div class="col-span-4 h-24 bg-[#161b22] rounded-xl animate-pulse" />}>
                 <div class="col-span-3">
-                  <div class="grid grid-cols-4 gap-4">
+                  <div class="grid grid-cols-5 gap-4">
                     <div class="p-4 bg-[#161b22] border border-[#21262d] rounded-xl">
                       <p class="text-2xl font-bold text-[#c9d1d9]">{stats()!.totalPlugins}</p>
                       <p class="text-xs text-[#8b949e]">Plugins</p>
@@ -316,6 +316,10 @@ export const EcosystemPage: Component<{ initialItemId?: string }> = (props) => {
                     <div class="p-4 bg-[#161b22] border border-[#21262d] rounded-xl">
                       <p class="text-2xl font-bold text-[#c9d1d9]">{stats()!.totalDownloads.toLocaleString()}</p>
                       <p class="text-xs text-[#8b949e]">Downloads</p>
+                    </div>
+                    <div class="p-4 bg-[#161b22] border border-[#21262d] rounded-xl">
+                      <p class="text-2xl font-bold text-[#c9d1d9]">{stats()!.totalUsers}</p>
+                      <p class="text-xs text-[#8b949e]">Users</p>
                     </div>
                   </div>
                 </div>
