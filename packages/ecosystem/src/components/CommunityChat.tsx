@@ -81,7 +81,7 @@ export const CommunityChat: Component = () => {
     } catch {}
   }
 
-  const loadRoomsFromGitHub = async (): Promise<string[]> => {
+  const loadRoomsFromGitHub = async (): Promise<Record<string, number>> => {
     try {
       const response = await fetch(
         "https://api.github.com/repos/onelpawarai/zyraxon-ecosystem-data/contents/active_rooms.json",
@@ -90,11 +90,12 @@ export const CommunityChat: Component = () => {
       if (response.ok) {
         const data = await response.json()
         if (data.content) {
-          return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
+          const parsed = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
+          return typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {}
         }
       }
     } catch {}
-    return []
+    return {}
   }
 
   const saveRoomsToGitHub = async (rooms: Record<string, number>) => {
@@ -221,7 +222,10 @@ export const CommunityChat: Component = () => {
       const roomId = await findAvailableRoom()
       setCallRoomId(roomId)
 
-      const peerId = `${roomId}-${auth.user?.id || "anon"}`
+      const roomsBefore = await loadRoomsFromGitHub()
+      const roomEntriesBefore: Record<string, number> = typeof roomsBefore === "object" && !Array.isArray(roomsBefore) ? roomsBefore : {}
+      const myIndex = roomEntriesBefore[roomId] || 0
+      const peerId = `${roomId}-peer-${myIndex}`
       peer = new Peer(peerId)
 
       peer.on("open", async () => {
@@ -233,18 +237,7 @@ export const CommunityChat: Component = () => {
         roomEntries[roomId] = (roomEntries[roomId] || 0) + 1
         await saveRoomsToGitHub(roomEntries)
 
-        const response = await fetch(
-          `https://api.github.com/repos/onelpawarai/zyraxon-ecosystem-data/contents/active_rooms.json`,
-          { headers: { Accept: "application/vnd.github.v3+json" } }
-        )
-        let currentSha = ""
-        if (response.ok) {
-          const data = await response.json()
-          currentSha = data.sha || ""
-        }
-        const allRooms = await loadRoomsFromGitHub()
-        const allRoomEntries: Record<string, number> = typeof allRooms === "object" && !Array.isArray(allRooms) ? allRooms : {}
-        const existingPeers = allRoomEntries[roomId] || 0
+        const existingPeers = roomEntries[roomId] - 1
         if (existingPeers > 0) {
           for (let i = 0; i < existingPeers; i++) {
             const tryPeerId = `${roomId}-peer-${i}`
