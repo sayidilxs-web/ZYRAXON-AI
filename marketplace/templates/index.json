@@ -1,0 +1,64 @@
+[
+    {
+        "featured":  true,
+        "downloads":  4567,
+        "likeCount":  234,
+        "createdAt":  "2026-03-10T00:00:00Z",
+        "verified":  true,
+        "version":  "3.0.1",
+        "author":  "ZYRAXON",
+        "name":  "React Admin Dashboard",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  34,
+        "rating":  4.8,
+        "description":  "Full-featured admin dashboard template with React, Tailwind CSS, and shadcn/ui components.",
+        "type":  "template",
+        "category":  "website-templates",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "react",
+                     "dashboard",
+                     "tailwind",
+                     "admin",
+                     "template"
+                 ],
+        "reviews":  56,
+        "id":  "template-react-dashboard",
+        "updatedAt":  "2026-07-28T00:00:00Z"
+    },
+    {
+        "featured":  true,
+        "downloads":  2345,
+        "likeCount":  145,
+        "createdAt":  "2026-04-01T00:00:00Z",
+        "verified":  true,
+        "version":  "2.0.0",
+        "author":  "ZYRAXON",
+        "name":  "E-Commerce Starter Kit",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  22,
+        "rating":  4.7,
+        "description":  "Complete e-commerce template with product catalog, cart, checkout, and payment integration.",
+        "type":  "template",
+        "category":  "website-templates",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "ecommerce",
+                     "shop",
+                     "payments",
+                     "stripe",
+                     "template"
+                 ],
+        "reviews":  38,
+        "id":  "template-ecommerce",
+        "updatedAt":  "2026-07-26T00:00:00Z"
+    }
+]
