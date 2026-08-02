@@ -1,0 +1,65 @@
+[
+    {
+        "id":  "bot-001",
+        "category":  "ai-bots",
+        "rating":  4.9,
+        "featured":  true,
+        "downloads":  520,
+        "tags":  [
+                     "code-review",
+                     "refactoring",
+                     "ai"
+                 ],
+        "name":  "ZYRAXON Code Bot",
+        "type":  "bot",
+        "description":  "AI-powered code review and refactoring assistant",
+        "version":  "3.0.0",
+        "createdAt":  "2026-05-01T00:00:00Z",
+        "author":  "zyraxon",
+        "authorId":  "user-zyraxon",
+        "authorAvatar":  "",
+        "updatedAt":  "2026-07-25T00:00:00Z"
+    },
+    {
+        "id":  "bot-002",
+        "category":  "ai-bots",
+        "rating":  4.3,
+        "featured":  false,
+        "downloads":  180,
+        "tags":  [
+                     "data",
+                     "analysis",
+                     "visualization"
+                 ],
+        "name":  "Data Analysis Bot",
+        "type":  "bot",
+        "description":  "Automated data analysis, visualization, and report generation",
+        "version":  "2.0.0",
+        "createdAt":  "2026-06-01T00:00:00Z",
+        "author":  "zyraxon",
+        "authorId":  "user-zyraxon",
+        "authorAvatar":  "",
+        "updatedAt":  "2026-07-10T00:00:00Z"
+    },
+    {
+        "id":  "bot-003",
+        "category":  "ai-bots",
+        "rating":  4.7,
+        "featured":  true,
+        "downloads":  95,
+        "tags":  [
+                     "security",
+                     "scanning",
+                     "owasp"
+                 ],
+        "name":  "Security Scanner Bot",
+        "type":  "bot",
+        "description":  "Automated security vulnerability scanning and OWASP checks",
+        "version":  "1.2.0",
+        "createdAt":  "2026-07-10T00:00:00Z",
+        "author":  "zyraxon",
+        "authorId":  "user-zyraxon",
+        "authorAvatar":  "",
+        "updatedAt":  "2026-07-28T00:00:00Z"
+    }
+]
