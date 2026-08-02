@@ -1,0 +1,285 @@
+[
+    {
+        "featured":  true,
+        "downloads":  1542,
+        "likeCount":  89,
+        "createdAt":  "2026-05-01T00:00:00Z",
+        "verified":  true,
+        "version":  "1.2.0",
+        "author":  "ZYRAXON",
+        "name":  "ZYRAXON Theme Engine",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "windows",
+                          "linux",
+                          "macos"
+                      ],
+        "commentCount":  12,
+        "rating":  4.7,
+        "description":  "Custom themes and color schemes for ZYRAXON AI. Change the look and feel of your workspace.",
+        "type":  "plugin",
+        "category":  "plugins",
+        "license":  "BSL-1.1",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "themes",
+                     "ui",
+                     "customization",
+                     "appearance"
+                 ],
+        "reviews":  23,
+        "id":  "plugin-zyraxon-theme-engine",
+        "updatedAt":  "2026-07-20T00:00:00Z"
+    },
+    {
+        "featured":  true,
+        "downloads":  3218,
+        "likeCount":  167,
+        "createdAt":  "2026-04-15T00:00:00Z",
+        "verified":  true,
+        "version":  "2.1.0",
+        "author":  "ZYRAXON",
+        "name":  "ZYRAXON Code Reviewer",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  28,
+        "rating":  4.9,
+        "description":  "Automated code review bot. Analyzes pull requests, suggests improvements, and catches bugs before they ship.",
+        "type":  "bot",
+        "category":  "ai-bots",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "code-review",
+                     "automation",
+                     "quality",
+                     "ci-cd"
+                 ],
+        "reviews":  45,
+        "id":  "bot-zyraxon-code-reviewer",
+        "updatedAt":  "2026-07-25T00:00:00Z"
+    },
+    {
+        "featured":  true,
+        "downloads":  4567,
+        "likeCount":  234,
+        "createdAt":  "2026-03-10T00:00:00Z",
+        "verified":  true,
+        "version":  "3.0.1",
+        "author":  "ZYRAXON",
+        "name":  "React Admin Dashboard",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  34,
+        "rating":  4.8,
+        "description":  "Full-featured admin dashboard template with React, Tailwind CSS, and shadcn/ui components.",
+        "type":  "template",
+        "category":  "website-templates",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "react",
+                     "dashboard",
+                     "tailwind",
+                     "admin",
+                     "template"
+                 ],
+        "reviews":  56,
+        "id":  "template-react-dashboard",
+        "updatedAt":  "2026-07-28T00:00:00Z"
+    },
+    {
+        "featured":  false,
+        "downloads":  2890,
+        "likeCount":  112,
+        "createdAt":  "2026-05-20T00:00:00Z",
+        "verified":  true,
+        "version":  "1.5.0",
+        "author":  "ZYRAXON",
+        "name":  "Code Snippet Manager",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "windows",
+                          "linux",
+                          "macos"
+                      ],
+        "commentCount":  18,
+        "rating":  4.6,
+        "description":  "Save, organize, and reuse code snippets across sessions. Search by language, tag, or content.",
+        "type":  "plugin",
+        "category":  "plugins",
+        "license":  "BSL-1.1",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "code",
+                     "snippets",
+                     "productivity",
+                     "organization"
+                 ],
+        "reviews":  31,
+        "id":  "plugin-snippet-manager",
+        "updatedAt":  "2026-07-15T00:00:00Z"
+    },
+    {
+        "featured":  false,
+        "downloads":  1876,
+        "likeCount":  78,
+        "createdAt":  "2026-06-01T00:00:00Z",
+        "verified":  true,
+        "version":  "2.0.0",
+        "author":  "ZYRAXON",
+        "name":  "ZYRAXON API Tester",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "windows",
+                          "linux",
+                          "macos"
+                      ],
+        "commentCount":  9,
+        "rating":  4.5,
+        "description":  "Full HTTP method support with headers, body, timing, and response comparison. Built-in IDOR detection.",
+        "type":  "plugin",
+        "category":  "tools",
+        "license":  "BSL-1.1",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "api",
+                     "testing",
+                     "http",
+                     "debugging",
+                     "security"
+                 ],
+        "reviews":  19,
+        "id":  "tool-api-tester",
+        "updatedAt":  "2026-07-18T00:00:00Z"
+    },
+    {
+        "featured":  false,
+        "downloads":  1234,
+        "likeCount":  56,
+        "createdAt":  "2026-06-15T00:00:00Z",
+        "verified":  true,
+        "version":  "1.3.0",
+        "author":  "ZYRAXON",
+        "name":  "Data Analysis Bot",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  7,
+        "rating":  4.4,
+        "description":  "Automated data analysis, visualization, and report generation. Supports CSV, JSON, and SQLite.",
+        "type":  "bot",
+        "category":  "ai-bots",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "data",
+                     "analysis",
+                     "visualization",
+                     "reports"
+                 ],
+        "reviews":  15,
+        "id":  "bot-data-analyst",
+        "updatedAt":  "2026-07-22T00:00:00Z"
+    },
+    {
+        "featured":  true,
+        "downloads":  2345,
+        "likeCount":  145,
+        "createdAt":  "2026-04-01T00:00:00Z",
+        "verified":  true,
+        "version":  "2.0.0",
+        "author":  "ZYRAXON",
+        "name":  "E-Commerce Starter Kit",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  22,
+        "rating":  4.7,
+        "description":  "Complete e-commerce template with product catalog, cart, checkout, and payment integration.",
+        "type":  "template",
+        "category":  "website-templates",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "ecommerce",
+                     "shop",
+                     "payments",
+                     "stripe",
+                     "template"
+                 ],
+        "reviews":  38,
+        "id":  "template-ecommerce",
+        "updatedAt":  "2026-07-26T00:00:00Z"
+    },
+    {
+        "featured":  false,
+        "downloads":  987,
+        "likeCount":  42,
+        "createdAt":  "2026-06-20T00:00:00Z",
+        "verified":  true,
+        "version":  "1.1.0",
+        "author":  "ZYRAXON",
+        "name":  "Git Workflow Automation",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "windows",
+                          "linux",
+                          "macos"
+                      ],
+        "commentCount":  5,
+        "rating":  4.3,
+        "description":  "Automated Git branching, commit conventions, and PR management. Integrates with GitHub Actions.",
+        "type":  "plugin",
+        "category":  "plugins",
+        "license":  "BSL-1.1",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "git",
+                     "workflow",
+                     "automation",
+                     "github",
+                     "ci-cd"
+                 ],
+        "reviews":  11,
+        "id":  "plugin-git-workflow",
+        "updatedAt":  "2026-07-10T00:00:00Z"
+    },
+    {
+        "featured":  false,
+        "downloads":  876,
+        "likeCount":  67,
+        "createdAt":  "2026-07-01T00:00:00Z",
+        "verified":  true,
+        "version":  "1.0.0",
+        "author":  "ZYRAXON",
+        "name":  "Security Scanner Bot",
+        "authorId":  "zyraxon-official",
+        "platforms":  [
+                          "web"
+                      ],
+        "commentCount":  8,
+        "rating":  4.8,
+        "description":  "Automated vulnerability scanning with OWASP Top 10 checks, CORS testing, and JWT analysis.",
+        "type":  "bot",
+        "category":  "ai-bots",
+        "license":  "MIT",
+        "authorAvatar":  "https://avatars.githubusercontent.com/u/1?v=4",
+        "tags":  [
+                     "security",
+                     "scanning",
+                     "owasp",
+                     "vulnerability",
+                     "pentesting"
+                 ],
+        "reviews":  14,
+        "id":  "bot-security-scanner",
+        "updatedAt":  "2026-07-28T00:00:00Z"
+    }
+]
