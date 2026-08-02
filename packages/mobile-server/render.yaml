@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: zyraxon-mobile-agent
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: "3001"
+      - key: MOBILE_AI_PROVIDER
+        value: opencode
+      - key: MOBILE_AI_MODEL
+        value: mimo-v2.5-free
+      - key: OPENCODE_API_KEY
+        sync: false
+      - key: OPENCODE_API_URL
+        value: https://opencode.ai/zen/v1
+      - key: OPENCODE_API_KEY
+        value: ""

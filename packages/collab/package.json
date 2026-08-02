@@ -1,0 +1,15 @@
+{
+  "name": "@opencode-ai/collab",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "effect": "4.0.0-beta.83"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "ZYRAXON AI",
+    "slug": "zyraxon-ai",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "zyraxonai",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#0a0a0f"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.zyraxon.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a0f"
+      },
+      "package": "ai.zyraxon.mobile",
+      "minSdkVersion": 23
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

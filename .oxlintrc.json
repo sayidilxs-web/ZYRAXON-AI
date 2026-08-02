@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicolo-ribaudo/oxc-project.github.io/refs/heads/json-schema/src/public/.oxlintrc.schema.json",
+  "options": {
+    "typeAware": true
+  },
+  "categories": {
+    "suspicious": "warn"
+  },
+  "rules": {
+    "typescript/no-base-to-string": "warn",
+    "require-yield": "off",
+    "no-unassigned-vars": "off",
+    "no-unused-expressions": "off",
+    "no-control-regex": "off",
+    "triple-slash-reference": "off",
+    "no-shadow": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/no-array-reverse": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "unicorn/require-module-specifiers": "off",
+    "unicorn/require-post-message-target-origin": "off",
+    "no-new": "off",
+    "typescript/no-floating-promises": "warn",
+    "typescript/no-misused-spread": "warn",
+    
+    // ZYRAXON-specific rules
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error",
+    "no-caller": "error",
+    "no-extend-native": "warn",
+    "no-global-assign": "error",
+    "no-implicit-globals": "warn",
+    "no-implicit-eval": "error",
+    "no-labels": "error",
+    "no-proto": "error",
+    "no-void": "error",
+    "no-with": "error",
+    "radix": "error",
+    "strict": "error"
+  },
+  "ignorePatterns": ["**/node_modules", "**/dist", "**/.build", "**/.sst", "**/*.d.ts", "**/sdk.gen.ts", "**/test_*.py", "**/check_*.py", "**/temp_*.py"]
+}
