@@ -245,6 +245,15 @@ export async function publishItem(item: Omit<EcosystemItem, "id" | "createdAt" |
     }
     existingItems.push(newItem)
     await commitToGitHub("/marketplace/published/index.json", existingItems, `Publish: ${newItem.name} to ZYRAXON Ecosystem`)
+
+    const { getGitHubStorage } = await import("./github-data")
+    const storage = getGitHubStorage()
+    if (storage) {
+      try {
+        await storage.addPublishedItem(newItem)
+      } catch {}
+    }
+
     cachedItems = null
   } catch (err) {
     console.error("Failed to persist to GitHub:", err)

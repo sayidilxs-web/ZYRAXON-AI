@@ -33,10 +33,29 @@ export const DetailModal: Component<DetailModalProps> = (props) => {
   const handleInstall = () => {
     if (!props.item || isInstalled() || isInstalling()) return
     setIsInstalling(true)
+    const item = props.item
+
+    if (item.installCommand) {
+      navigator.clipboard.writeText(item.installCommand)
+      setIsInstalling(false)
+      setIsInstalled(true)
+      props.onInstall?.(item)
+      return
+    }
+
+    const url = item.downloadUrl || item.liveDemo || item.githubRepo || item.repository
+    if (url) {
+      window.open(url, "_blank")
+      setIsInstalling(false)
+      setIsInstalled(true)
+      props.onInstall?.(item)
+      return
+    }
+
     setTimeout(() => {
       setIsInstalling(false)
       setIsInstalled(true)
-      props.onInstall?.(props.item!)
+      props.onInstall?.(item)
     }, 1500)
   }
 
@@ -134,19 +153,31 @@ export const DetailModal: Component<DetailModalProps> = (props) => {
           </div>
 
           <div class="flex items-center justify-end gap-3 p-6 border-t border-[#21262d] bg-[#0d1117]">
-            <a
-              href={props.item!.repository}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#21262d] rounded-lg transition-colors"
-            >
-              Source Code
-            </a>
+            <Show when={props.item!.githubRepo || props.item!.repository}>
+              <a
+                href={props.item!.githubRepo || props.item!.repository}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#21262d] rounded-lg transition-colors"
+              >
+                Source Code
+              </a>
+            </Show>
+            <Show when={props.item!.liveDemo}>
+              <a
+                href={props.item!.liveDemo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 text-sm text-[#58a6ff] hover:bg-[#21262d] rounded-lg transition-colors"
+              >
+                Live Demo
+              </a>
+            </Show>
             <Show
               when={!isInstalled()}
               fallback={
                 <span class="flex items-center gap-1 px-4 py-2 bg-[#238636]/20 text-[#3fb950] rounded-lg text-sm font-medium">
-                  <IconCheck size={14} /> Installed
+                  <IconCheck size={14} /> {props.item!.installCommand ? "Copied!" : "Opened"}
                 </span>
               }
             >
@@ -154,13 +185,13 @@ export const DetailModal: Component<DetailModalProps> = (props) => {
                 type="button"
                 onClick={handleInstall}
                 disabled={isInstalling()}
-                class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors text-white ${
                   isInstalling()
                     ? "bg-[#21262d] text-[#8b949e] cursor-wait"
-                    : "bg-[#238636] hover:bg-[#2ea043] text-white"
+                    : "bg-[#238636] hover:bg-[#2ea043]"
                 }`}
               >
-                {isInstalling() ? "Installing..." : "Install"}
+                {isInstalling() ? "Installing..." : props.item!.installCommand ? "Copy Command" : "Install"}
               </button>
             </Show>
           </div>

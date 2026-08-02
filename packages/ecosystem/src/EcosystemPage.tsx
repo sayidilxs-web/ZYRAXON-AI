@@ -414,12 +414,20 @@ export const EcosystemPage: Component<{ initialItemId?: string }> = (props) => {
                 <div class="w-20 h-20 rounded-2xl bg-[#161b22] border border-[#21262d] flex items-center justify-center mb-4">
                   <span class="text-3xl text-[#484f58]">🛒</span>
                 </div>
-                <p class="text-xl text-[#c9d1d9] mb-2">Ecosystem is Empty</p>
+                <p class="text-xl text-[#c9d1d9] mb-2">No Items Published Yet</p>
                 <p class="text-sm text-[#8b949e] mb-6 text-center max-w-md">
-                  No items have been published yet. Items created and published by ZYRAXON AI will appear here automatically.
+                  The ecosystem marketplace is waiting for its first items. Publish your own plugins, bots, templates, or any creation to get started.
                 </p>
                 <Show when={auth().isAuthenticated}>
-                  <p class="text-xs text-[#58a6ff]">Ask ZYRAXON AI to build and publish something for you!</p>
+                  <button
+                    onClick={() => navigateTo("explore")}
+                    class="px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Start Exploring
+                  </button>
+                </Show>
+                <Show when={!auth().isAuthenticated}>
+                  <p class="text-xs text-[#8b949e]">Sign in to publish your first item</p>
                 </Show>
               </div>
             </Show>

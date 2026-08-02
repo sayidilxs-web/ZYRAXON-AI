@@ -53,6 +53,10 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
   const [tags, setTags] = createSignal("")
   const [liveDemo, setLiveDemo] = createSignal("")
   const [coverImage, setCoverImage] = createSignal("")
+  const [downloadUrl, setDownloadUrl] = createSignal("")
+  const [githubRepo, setGithubRepo] = createSignal("")
+  const [installCommand, setInstallCommand] = createSignal("")
+  const [license, setLicense] = createSignal("MIT")
   const [error, setError] = createSignal("")
 
   const auth = getAuthState()
@@ -66,6 +70,10 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
       if (props.aiGenerated.tags) setTags(props.aiGenerated.tags.join(", "))
       if (props.aiGenerated.liveDemo) setLiveDemo(props.aiGenerated.liveDemo)
       if (props.aiGenerated.coverImage) setCoverImage(props.aiGenerated.coverImage)
+      if (props.aiGenerated.downloadUrl) setDownloadUrl(props.aiGenerated.downloadUrl)
+      if (props.aiGenerated.githubRepo) setGithubRepo(props.aiGenerated.githubRepo)
+      if (props.aiGenerated.installCommand) setInstallCommand(props.aiGenerated.installCommand)
+      if (props.aiGenerated.license) setLicense(props.aiGenerated.license)
     }
   }
 
@@ -100,6 +108,10 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
         repository: "",
         liveDemo: liveDemo() || undefined,
         coverImage: coverImage() || undefined,
+        downloadUrl: downloadUrl() || undefined,
+        githubRepo: githubRepo() || undefined,
+        installCommand: installCommand() || undefined,
+        license: license() || undefined,
         socialLinks: {},
       })
 
@@ -129,6 +141,10 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
     setTags("")
     setLiveDemo("")
     setCoverImage("")
+    setDownloadUrl("")
+    setGithubRepo("")
+    setInstallCommand("")
+    setLicense("MIT")
     setError("")
   }
 
@@ -247,6 +263,56 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
                   class="w-full px-3 py-2 bg-[#0d1117] border border-[#21262d] rounded-lg text-sm text-[#c9d1d9] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
                 />
               </div>
+
+              <div>
+                <label class="block text-sm font-medium text-[#c9d1d9] mb-1.5">Download URL (optional)</label>
+                <input
+                  type="text"
+                  value={downloadUrl()}
+                  onInput={(e) => setDownloadUrl(e.currentTarget.value)}
+                  placeholder="https://example.com/download/app.exe"
+                  class="w-full px-3 py-2 bg-[#0d1117] border border-[#21262d] rounded-lg text-sm text-[#c9d1d9] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-[#c9d1d9] mb-1.5">GitHub Repo (optional)</label>
+                <input
+                  type="text"
+                  value={githubRepo()}
+                  onInput={(e) => setGithubRepo(e.currentTarget.value)}
+                  placeholder="https://github.com/user/repo"
+                  class="w-full px-3 py-2 bg-[#0d1117] border border-[#21262d] rounded-lg text-sm text-[#c9d1d9] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-[#c9d1d9] mb-1.5">Install Command (optional)</label>
+                <input
+                  type="text"
+                  value={installCommand()}
+                  onInput={(e) => setInstallCommand(e.currentTarget.value)}
+                  placeholder="npm install my-plugin"
+                  class="w-full px-3 py-2 bg-[#0d1117] border border-[#21262d] rounded-lg text-sm text-[#c9d1d9] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-[#c9d1d9] mb-1.5">License</label>
+                <select
+                  value={license()}
+                  onChange={(e) => setLicense(e.currentTarget.value)}
+                  class="w-full px-3 py-2 bg-[#0d1117] border border-[#21262d] rounded-lg text-sm text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
+                >
+                  <option value="MIT">MIT</option>
+                  <option value="BSL-1.1">BSL-1.1</option>
+                  <option value="Apache-2.0">Apache-2.0</option>
+                  <option value="GPL-3.0">GPL-3.0</option>
+                  <option value="BSD-3-Clause">BSD-3-Clause</option>
+                  <option value="Unlicense">Unlicense</option>
+                  <option value="None">None</option>
+                </select>
+              </div>
             </div>
 
             <div class="flex items-center justify-end gap-3 p-6 border-t border-[#21262d] bg-[#0d1117]">
@@ -307,7 +373,16 @@ export const PublishModal: Component<PublishModalProps> = (props) => {
                   </Show>
                   <div class="flex items-center gap-2 text-xs text-[#8b949e]">
                     <span>by {auth.user?.displayName || auth.user?.username}</span>
+                    <Show when={license()}>
+                      <span>• {license()}</span>
+                    </Show>
                   </div>
+                  <Show when={downloadUrl()}>
+                    <p class="text-xs text-[#58a6ff] mt-2 truncate">{downloadUrl()}</p>
+                  </Show>
+                  <Show when={githubRepo()}>
+                    <p class="text-xs text-[#58a6ff] mt-1 truncate">{githubRepo()}</p>
+                  </Show>
                 </div>
               </div>
             </div>
